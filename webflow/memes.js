@@ -1,54 +1,15 @@
-// Define the URL of your DigitalOcean space
 const digitaloceanSpaceUrl = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
 
-// Function to fetch and list all file URLs in the space
-async function listSpaceFiles() {
-    try {
-        const response = await fetch(`${digitaloceanSpaceUrl}?list-type=2`);
-        if (!response.ok) {
-            throw new Error("Network response was not ok.");
-        }
-        const data = await response.text(); // The S3 API returns XML responses for bucket operations
-        const fileMap = parseSpacesXML(data);
-        // console.log("File Map:", fileMap); // Log the map of ETag and URLs
-        return fileMap; // This can be used to further process the map of ETags and URLs
-    } catch (error) {
-        console.error("Error:", error);
-    }
-}
-
-// Function to parse the XML response and return file URLs mapped to their ETags
-function parseSpacesXML(xml) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xml, "text/xml");
-    const files = xmlDoc.getElementsByTagName("Contents");
-    let fileMap = {};
-
-    Array.from(files).forEach((file) => {
-        const key = file.getElementsByTagName("Key")[0].textContent;
-        const etag = file.getElementsByTagName("ETag")[0].textContent.replace(/"/g, ""); // Remove quotes from ETag
-        const fileUrl = `${digitaloceanSpaceUrl}/${encodeURIComponent(key)}`;
-        fileMap[etag] = fileUrl;
-    });
-
-    return fileMap;
-}
-
-// ############################################################
-
 class Meme {
-    constructor(fileId, imageUrl, likes = 0) {
-        this.fileId = fileId;
-        this.imageUrl = imageUrl;
+    constructor(id, url, likes = 0) {
+        this.id = id;
+        this.url = url;
         this.likes = likes;
     }
 
     display() {
-        // Example method to display meme information
-        console.log(`Meme: ${this.imageUrl} | Likes: ${this.likes}`);
+        console.log(`Meme: ${this.url} | Likes: ${this.likes}`);
     }
-
-    // Add other methods as needed
 }
 
 class MongodbAuthManager {
@@ -61,7 +22,6 @@ class MongodbAuthManager {
         if (this.token && Date.now() < this.expiry) {
             return this.token;
         }
-
         try {
             const response = await fetch("https://eu-central-1.aws.services.cloud.mongodb.com/api/client/v2.0/app/data-zgorjkq/auth/providers/anon-user/login", { method: "POST" });
             if (!response.ok) {
@@ -69,23 +29,45 @@ class MongodbAuthManager {
             }
             const { access_token, expires_in } = await response.json();
             this.token = access_token;
-            this.expiry = Date.now() + expires_in * 1000 - 60000; // Refresh 1 minute before expiry
-            console.log("New token fetched", this.token);
+            this.expiry = Date.now() + expires_in * 1000 - 60000;
+            console.log("New token fetched:", this.token);
             return this.token;
         } catch (error) {
             console.error("Error obtaining access token:", error);
-            throw error; // Re-throw to handle upstream
+            throw error;
         }
     }
 }
 
-async function fetchLikesData() {
+async function fetchXML(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error("Network response was not ok.");
+    }
+    return response.text();
+}
+
+function parseXML(xml) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
+    const files = xmlDoc.getElementsByTagName("Contents");
+    let fileMap = {};
+    Array.from(files).forEach((file) => {
+        const key = file.getElementsByTagName("Key")[0].textContent;
+        const fileId = file.getElementsByTagName("ETag")[0].textContent.replace(/"/g, "");
+        const fileUrl = `${digitaloceanSpaceUrl}/${encodeURIComponent(key)}`;
+        fileMap[fileId] = fileUrl;
+    });
+    return fileMap;
+}
+
+async function fetchLikesData(authManager) {
     let token;
     try {
         token = await authManager.getAccessToken();
     } catch (error) {
         console.error("Failed to get access token:", error);
-        return null; // Return null to indicate failure to fetch data
+        return [];
     }
 
     try {
@@ -98,51 +80,36 @@ async function fetchLikesData() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Token expired
-                authManager.token = null; // Invalidate the expired token
-                return await fetchLikesData(); // Retry with a new token
+                authManager.token = null;
+                return fetchLikesData(authManager);
             }
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const jsonData = await response.json();
-        const data = jsonData.result.map((item) => ({
-            fileId: item._id,
-            likes: item.likes,
-        }));
-        return data;
+        return jsonData.result.map((item) => new Meme(item._id, undefined, item.likes));
     } catch (error) {
         console.error("Error fetching likes data:", error);
-        return null; // Return null to handle errors cleanly upstream
+        return [];
     }
 }
 
-async function mergeTwoLists(inputData) {
-    const likesData = await fetchLikesData();
-    if (!likesData) return [];
-
-    // Convert likesData to a map for quick access
-    const likesMap = new Map(likesData.map((item) => [item.fileId, item.likes]));
-
-    // Construct the final array using additionalData as the base, creating Meme instances
-    return Object.keys(inputData).map(
-        (fileId) =>
-            new Meme(
-                fileId,
-                inputData[fileId],
-                likesMap.get(fileId) || 0 // Default to 0 if no likes data is available
-            )
-    );
+async function mergeData(fileData, likesData) {
+    const likesMap = new Map(likesData.map((meme) => [meme.id, meme.likes]));
+    return Object.keys(fileData).map((fileId) => new Meme(fileId, fileData[fileId], likesMap.get(fileId) || 0));
 }
 
-// ############################################################
-
 async function getMemes() {
-    const files = await listSpaceFiles();
-    if (!files) return;
-    const data = await mergeTwoLists(files);
-    console.log("Combined Data:", data);
-    return data;
+    try {
+        const xmlData = await fetchXML(`${digitaloceanSpaceUrl}?list-type=2`);
+        const fileData = parseXML(xmlData);
+        const likesData = await fetchLikesData(authManager);
+        const memes = await mergeData(fileData, likesData);
+        memes.forEach((meme) => meme.display());
+        return memes;
+    } catch (error) {
+        console.error("Error in getMemes:", error);
+    }
 }
 
 const authManager = new MongodbAuthManager();
