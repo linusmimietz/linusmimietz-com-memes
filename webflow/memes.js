@@ -1,14 +1,45 @@
 const digitaloceanSpaceUrl = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
 
 class Meme {
-    constructor(id, url, likes = 0) {
+    constructor(id, url, likes = 0, authManager) {
         this.id = id;
         this.url = url;
         this.likes = likes;
+        this.authManager = authManager; // Assign the authManager to each meme instance
     }
 
     display() {
         console.log(`Meme: ${this.url} | Likes: ${this.likes}`);
+    }
+
+    async like() {
+        let token;
+        try {
+            token = await this.authManager.getAccessToken(); // Ensure we have a valid token
+        } catch (error) {
+            console.error("Failed to get access token:", error);
+            return; // Exit if we cannot get a token
+        }
+
+        try {
+            const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain",
+                    Authorization: `Bearer ${token}`, // Use the token for authorization
+                },
+                body: this.id,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            this.likes++; // Increment the likes count on successful API response
+            console.log("Meme liked:", this);
+        } catch (error) {
+            console.error("Error liking meme:", error);
+        }
     }
 }
 
@@ -87,16 +118,16 @@ async function fetchLikesData(authManager) {
         }
 
         const jsonData = await response.json();
-        return jsonData.result.map((item) => new Meme(item._id, undefined, item.likes));
+        return jsonData.result.map((item) => new Meme(item._id, undefined, item.likes, authManager));
     } catch (error) {
         console.error("Error fetching likes data:", error);
         return [];
     }
 }
 
-async function mergeData(fileData, likesData) {
+async function mergeData(fileData, likesData, authManager) {
     const likesMap = new Map(likesData.map((meme) => [meme.id, meme.likes]));
-    return Object.keys(fileData).map((fileId) => new Meme(fileId, fileData[fileId], likesMap.get(fileId) || 0));
+    return Object.keys(fileData).map((fileId) => new Meme(fileId, fileData[fileId], likesMap.get(fileId) || 0, authManager));
 }
 
 async function getMemes() {
@@ -104,8 +135,9 @@ async function getMemes() {
         const xmlData = await fetchXML(`${digitaloceanSpaceUrl}?list-type=2`);
         const fileData = parseXML(xmlData);
         const likesData = await fetchLikesData(authManager);
-        const memes = await mergeData(fileData, likesData);
+        const memes = await mergeData(fileData, likesData, authManager);
         memes.forEach((meme) => meme.display());
+        memes[2].like();
         return memes;
     } catch (error) {
         console.error("Error in getMemes:", error);
