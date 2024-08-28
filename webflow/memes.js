@@ -58,9 +58,9 @@ class MongodbAuthManager {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const { access_token, expires_in } = await response.json();
+            const { access_token } = await response.json();
             this.token = access_token;
-            this.expiry = Date.now() + expires_in * 1000 - 60000;
+            this.expiry = Date.now() + 1800000; // 30 minutes in milliseconds for standard expiry
             console.log("New token fetched:", this.token);
             return this.token;
         } catch (error) {
