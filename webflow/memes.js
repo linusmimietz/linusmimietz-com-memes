@@ -34,12 +34,22 @@ function parseXML(xml) {
     return fileMap;
 }
 
-// Call the function to list files
-listFiles().then((fileMap) => {
-    console.log(fileMap); // Optionally log the dictionary of ETag and URLs here
-});
-
 // ############################################################
+
+class Meme {
+    constructor(fileId, imageUrl, likes = 0) {
+        this.fileId = fileId;
+        this.imageUrl = imageUrl;
+        this.likes = likes;
+    }
+
+    display() {
+        // Example method to display meme information
+        console.log(`Meme: ${this.imageUrl} | Likes: ${this.likes}`);
+    }
+
+    // Add other methods as needed
+}
 
 class AuthManager {
     constructor() {
@@ -112,22 +122,32 @@ const additionalData = {
     d5f32d3f92679cf6db444d0f9f091a53: "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com/X%20tweet%20image.png",
 };
 
-async function mergeData() {
+async function mergeData(inputData) {
     const likesData = await fetchLikesData();
     if (!likesData) return [];
 
     // Convert likesData to a map for quick access
     const likesMap = new Map(likesData.map((item) => [item.fileId, item.likes]));
 
-    // Construct the final array using additionalData as the base
-    return Object.keys(additionalData).map((fileId) => ({
-        fileId: fileId,
-        likes: likesMap.get(fileId) || 0, // Default to 0 if no likes data is available
-        imageUrl: additionalData[fileId],
-    }));
+    // Construct the final array using additionalData as the base, creating Meme instances
+    return Object.keys(inputData).map(
+        (fileId) =>
+            new Meme(
+                fileId,
+                inputData[fileId],
+                likesMap.get(fileId) || 0 // Default to 0 if no likes data is available
+            )
+    );
 }
 
+// ############################################################
+
+// Call the function to list files
+listFiles().then((fileMap) => {
+    console.log(fileMap); // Optionally log the dictionary of ETag and URLs here
+});
+
 const authManager = new AuthManager();
-mergeData().then((data) => {
-    console.log("Merged data:", data);
+mergeData(additionalData).then((data) => {
+    data.forEach((meme) => meme.display()); // Display each meme's details
 });
