@@ -5,7 +5,7 @@ class Meme {
         this.id = id;
         this.url = url;
         this.likes = likes;
-        this.authManager = authManager; // Assign the authManager to each meme instance
+        this.authManager = authManager;
     }
 
     display() {
@@ -15,10 +15,10 @@ class Meme {
     async like() {
         let token;
         try {
-            token = await this.authManager.getAccessToken(); // Ensure we have a valid token
+            token = await this.authManager.getAccessToken();
         } catch (error) {
             console.error("Failed to get access token:", error);
-            return; // Exit if we cannot get a token
+            return;
         }
 
         try {
@@ -26,7 +26,7 @@ class Meme {
                 method: "POST",
                 headers: {
                     "Content-Type": "text/plain",
-                    Authorization: `Bearer ${token}`, // Use the token for authorization
+                    Authorization: `Bearer ${token}`,
                 },
                 body: this.id,
             });
@@ -35,7 +35,7 @@ class Meme {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
-            this.likes++; // Increment the likes count on successful API response
+            this.likes++;
             console.log("Meme liked:", this);
         } catch (error) {
             console.error("Error liking meme:", error);
