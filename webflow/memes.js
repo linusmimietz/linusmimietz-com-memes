@@ -2,14 +2,14 @@
 const digitaloceanSpaceUrl = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
 
 // Function to fetch and list all file URLs in the space
-async function listFiles() {
+async function listSpaceFiles() {
     try {
         const response = await fetch(`${digitaloceanSpaceUrl}?list-type=2`);
         if (!response.ok) {
             throw new Error("Network response was not ok.");
         }
         const data = await response.text(); // The S3 API returns XML responses for bucket operations
-        const fileMap = parseXML(data);
+        const fileMap = parseSpacesXML(data);
         // console.log("File Map:", fileMap); // Log the map of ETag and URLs
         return fileMap; // This can be used to further process the map of ETags and URLs
     } catch (error) {
@@ -18,7 +18,7 @@ async function listFiles() {
 }
 
 // Function to parse the XML response and return file URLs mapped to their ETags
-function parseXML(xml) {
+function parseSpacesXML(xml) {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xml, "text/xml");
     const files = xmlDoc.getElementsByTagName("Contents");
@@ -51,7 +51,7 @@ class Meme {
     // Add other methods as needed
 }
 
-class AuthManager {
+class MongodbAuthManager {
     constructor() {
         this.token = null;
         this.expiry = Date.now();
@@ -117,12 +117,7 @@ async function fetchLikesData() {
     }
 }
 
-const additionalData = {
-    "82ee19aabf68ec80b9aaf3dc22ee1054": "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com/meme.jpeg",
-    d5f32d3f92679cf6db444d0f9f091a53: "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com/X%20tweet%20image.png",
-};
-
-async function mergeData(inputData) {
+async function mergeTwoLists(inputData) {
     const likesData = await fetchLikesData();
     if (!likesData) return [];
 
@@ -142,12 +137,13 @@ async function mergeData(inputData) {
 
 // ############################################################
 
-// Call the function to list files
-listFiles().then((fileMap) => {
-    console.log(fileMap); // Optionally log the dictionary of ETag and URLs here
-});
+async function getMemes() {
+    const files = await listSpaceFiles();
+    if (!files) return;
+    const data = await mergeTwoLists(files);
+    console.log("Combined Data:", data);
+    return data;
+}
 
-const authManager = new AuthManager();
-mergeData(additionalData).then((data) => {
-    data.forEach((meme) => meme.display()); // Display each meme's details
-});
+const authManager = new MongodbAuthManager();
+getMemes();
