@@ -1,10 +1,13 @@
+import axios from 'axios';
+
+
 const digitaloceanSpaceUrl: string = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
 
 interface IAuthManager {
     getAccessToken(): Promise<string>;
 }
 
-class Meme {
+export class Meme {
     id: string;
     url: string;
     likes: number;
@@ -52,7 +55,7 @@ class Meme {
     }
 }
 
-class MongodbAuthManager implements IAuthManager {
+export class MongodbAuthManager implements IAuthManager {
     token: string = "";
     expiry: number = Date.now();
 
@@ -78,25 +81,27 @@ class MongodbAuthManager implements IAuthManager {
 }
 
 async function fetchXML(url: string): Promise<string> {
-    const response = await fetch(url);
-    if (!response.ok) {
+    try {
+        const response = await axios.get(url, { responseType: 'text' });
+        return response.data;
+    } catch (error) {
+        console.error(error);
         throw new Error("Network response was not ok.");
     }
-    return response.text();
 }
 
-function parseXML(xml: string): Record<string, string> {
+async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]> {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xml, "text/xml");
     const files = xmlDoc.getElementsByTagName("Contents");
-    let fileMap: Record<string, string> = {};
+    let memes: Meme[] = [];
     Array.from(files).forEach((file) => {
         const key = file.getElementsByTagName("Key")[0].textContent!;
         const fileId = file.getElementsByTagName("ETag")[0].textContent!.replace(/"/g, "");
         const fileUrl = `${digitaloceanSpaceUrl}/${encodeURIComponent(key)}`;
-        fileMap[fileId] = fileUrl;
+        memes.push(new Meme(fileId, fileUrl, 0, authManager));
     });
-    return fileMap;
+    return memes;
 }
 
 async function fetchLikesData(authManager: MongodbAuthManager): Promise<Meme[]> {
@@ -132,23 +137,33 @@ async function fetchLikesData(authManager: MongodbAuthManager): Promise<Meme[]> 
     }
 }
 
-async function mergeData(fileData: Record<string, string>, likesData: Meme[], authManager: IAuthManager): Promise<Meme[]> {
-    const likesMap = new Map(likesData.map((meme) => [meme.id, meme.likes]));
-    return Object.keys(fileData).map((fileId) => new Meme(fileId, fileData[fileId], likesMap.get(fileId) || 0, authManager));
+async function mergeData(fileMemes: Meme[], likesData: Meme[]): Promise<Meme[]> {
+    const likesMap = new Map(likesData.map(meme => [meme.id, meme.likes]));
+    fileMemes.forEach(meme => {
+        if (likesMap.has(meme.id)) {
+            meme.likes = likesMap.get(meme.id) || 0;
+        }
+    });
+    return fileMemes;
 }
 
-async function getMemes(): Promise<void> {
+export async function getMemes(): Promise<Meme[]> {
+    const authManager = new MongodbAuthManager();
     try {
         const xmlData = await fetchXML(`${digitaloceanSpaceUrl}?list-type=2`);
-        const fileData = parseXML(xmlData);
+        console.log("XML data fetched:", xmlData);
+        const memeFiles = await parseXML(xmlData, authManager);
+        console.log("Meme files parsed:", memeFiles);
         const likesData = await fetchLikesData(authManager);
-        const memes = await mergeData(fileData, likesData, authManager);
+        console.log("Likes data fetched:", likesData);
+        const memes = await mergeData(memeFiles, likesData);
         memes.forEach((meme) => meme.display());
-        memes[2].like();
+        // memes[2].like();
+        return memes;
     } catch (error) {
         console.error("Error in getMemes:", error);
+        return [];
     }
 }
 
-const authManager = new MongodbAuthManager();
-getMemes();
+// var memes = getMemes();

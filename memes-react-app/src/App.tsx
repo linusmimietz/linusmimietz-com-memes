@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import './assets/fonts/fontfaces.css';
-import { Button, ConfigProvider, Space, Typography } from 'antd';
+import { Button, ConfigProvider } from 'antd';
+import { Meme, getMemes } from './api';
+
+
 
 function App() {
+  const [memes, setMemes] = useState<Meme[]>([]);
+  useEffect(() => {
+    getMemes().then((memes) => setMemes(memes));
+  }, []);
+  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+
   return (
     <ConfigProvider
     theme={{
@@ -15,16 +24,16 @@ function App() {
       },
     }}
   >
-    <div className="App">
-      <Space direction="vertical">
-        <Typography.Title>Ant Design</Typography.Title>
-        <Typography.Text>with custom theme</Typography.Text>
-        <Button type="primary">Click Me</Button>
-        <div>
-          Font test
-        </div>
-      </Space>
-    </div>
+      <div className="container">
+          <div className="meme-image">
+            <img src={memes[currentMemeIndex].url} alt="meme" />
+          </div>
+          <div className="control-container">
+            <Button onClick={() => setCurrentMemeIndex((currentMemeIndex - 1 + memes.length) % memes.length)}>Back</Button>
+            <Button onClick={() => memes[currentMemeIndex].like()}>{memes[currentMemeIndex].likes} Likes</Button>
+            <Button onClick={() => setCurrentMemeIndex((currentMemeIndex + 1) % memes.length)}>Next</Button>
+          </div>
+      </div>
   </ConfigProvider>
   );
 }

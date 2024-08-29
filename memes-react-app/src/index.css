@@ -12,3 +12,30 @@ div {
   color: #f00;
   font-family: 'Sequel Sans Body';
 }
+
+.container {
+  max-width: 1244px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.meme-image {
+  height: 800px;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.meme-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.control-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 40px;
+}
