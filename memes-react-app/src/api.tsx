@@ -17,33 +17,6 @@ export class Meme {
         this.likes = likes;
         this.authManager = authManager;
     }
-
-    display(): void {
-        console.log(`Meme: ${this.url} | Likes: ${this.likes}`);
-    }
-
-    async like(): Promise<void> {
-        let token: string;
-        try {
-            token = await this.authManager.getAccessToken();
-        } catch (error) {
-            console.error("Failed to get access token:", error);
-            return;
-        }
-
-        try {
-            await axios.post("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", this.id, {
-                headers: {
-                    "Content-Type": "text/plain",
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            this.likes++;
-            console.log("Meme liked:", this);
-        } catch (error) {
-            console.error("Error liking meme:", error);
-        }
-    }
 }
 
 export class MongodbAuthManager implements IAuthManager {
@@ -67,6 +40,33 @@ export class MongodbAuthManager implements IAuthManager {
         }
     }
 }
+
+export const likeMeme = async (
+    meme: Meme,
+    setMemes: React.Dispatch<React.SetStateAction<Meme[]>>,
+    memes: Meme[],
+    index: number,
+    ): Promise<void> => {
+    const updatedMemes = memes.map((m, idx) => idx === index ? { ...m, likes: m.likes + 1 } : m);
+    setMemes(updatedMemes);
+    let token;
+    try {
+        token = await meme.authManager.getAccessToken();
+        const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain",
+                Authorization: `Bearer ${token}`,
+            },
+            body: meme.id,
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Error liking meme:", error);
+    }
+};
 
 async function fetchXML(url: string): Promise<string> {
     try {
@@ -144,8 +144,7 @@ export async function getMemes(): Promise<Meme[]> {
         const likesData = await fetchLikesData(authManager);
         console.log("Likes data fetched:", likesData);
         const memes = await mergeData(memeFiles, likesData);
-        memes.forEach((meme) => meme.display());
-        // memes[2].like();
+        console.log("Merged data:", memes.map(meme => `Meme: ${meme.url} | Likes: ${meme.likes}`).join("\n"));
         return memes;
     } catch (error) {
         console.error("Error in getMemes:", error);

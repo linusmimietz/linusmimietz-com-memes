@@ -70,6 +70,31 @@ class MongodbAuthManager {
     }
 }
 
+export const handleLike = async (meme: Meme, setMemes: React.Dispatch<React.SetStateAction<Meme[]>>, memes: Meme[], index: number, authManager: AuthManager): Promise<void> => {
+    let token;
+    try {
+        token = await authManager.getAccessToken();
+        const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain",
+                Authorization: `Bearer ${token}`,
+            },
+            body: meme.id,
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Create a new array with the updated likes count for immutability
+        const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, likes: m.likes + 1 } : m));
+        setMemes(updatedMemes);
+    } catch (error) {
+        console.error("Error liking meme:", error);
+    }
+};
+
 async function fetchXML(url) {
     const response = await fetch(url);
     if (!response.ok) {
