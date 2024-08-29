@@ -1,6 +1,4 @@
 import axios from 'axios';
-
-
 const digitaloceanSpaceUrl: string = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
 
 interface IAuthManager {
@@ -34,19 +32,12 @@ export class Meme {
         }
 
         try {
-            const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
-                method: "POST",
+            await axios.post("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", this.id, {
                 headers: {
                     "Content-Type": "text/plain",
                     Authorization: `Bearer ${token}`,
-                },
-                body: this.id,
+                }
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
             this.likes++;
             console.log("Meme liked:", this);
         } catch (error) {
@@ -64,11 +55,8 @@ export class MongodbAuthManager implements IAuthManager {
             return this.token;
         }
         try {
-            const response = await fetch("https://eu-central-1.aws.services.cloud.mongodb.com/api/client/v2.0/app/data-zgorjkq/auth/providers/anon-user/login", { method: "POST" });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const { access_token } = await response.json();
+            const response = await axios.post("https://eu-central-1.aws.services.cloud.mongodb.com/api/client/v2.0/app/data-zgorjkq/auth/providers/anon-user/login");
+            const { access_token } = response.data;
             this.token = access_token;
             this.expiry = Date.now() + 1800000; // 30 minutes in milliseconds for standard expiry
             console.log("New token fetched:", this.token);
