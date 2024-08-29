@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import './assets/fonts/fontfaces.css';
-import { Button, ConfigProvider } from 'antd';
-import { Meme, getMemes, likeMeme } from './api';
-
-
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import "./assets/fonts/fontfaces.css";
+import { Button, ConfigProvider } from "antd";
+import { Meme, getMemes, likeMeme } from "./api";
 
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
@@ -15,15 +13,15 @@ function App() {
 
   return (
     <ConfigProvider
-    theme={{
-      token: {
-        colorPrimary: '#303030',
-        colorTextBase: '#303030',
-        borderRadius: 4,
-        fontFamily: 'Sequel Sans Body'
-      },
-    }}
-  >
+      theme={{
+        token: {
+          colorPrimary: "#303030",
+          colorTextBase: "#303030",
+          borderRadius: 4,
+          fontFamily: "Sequel Sans Body",
+        },
+      }}
+    >
       <div className="container">
         {memes.length > 0 && (
           <div>
@@ -38,7 +36,7 @@ function App() {
           </div>
         )}
       </div>
-  </ConfigProvider>
+    </ConfigProvider>
   );
 }
 
