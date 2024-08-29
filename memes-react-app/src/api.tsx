@@ -102,25 +102,22 @@ async function fetchLikesData(authManager: MongodbAuthManager): Promise<Meme[]> 
     }
 
     try {
-        const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/get_all", {
-            method: "GET",
+        const response = await axios.get("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/get_all", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
-
-        if (!response.ok) {
-            if (response.status === 401) {
+        return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, "", item.likes, authManager));
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 401) {
                 authManager.token = "";
                 return fetchLikesData(authManager);
             }
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            console.error(`HTTP error! Status: ${error.response.status}`);
+        } else {
+            console.error("Error fetching likes data:", error);
         }
-
-        const jsonData = await response.json();
-        return jsonData.result.map((item: { _id: string; likes: number }) => new Meme(item._id, "", item.likes, authManager));
-    } catch (error) {
-        console.error("Error fetching likes data:", error);
         return [];
     }
 }
