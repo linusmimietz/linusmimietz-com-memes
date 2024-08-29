@@ -92,7 +92,12 @@ async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]>
     return memes;
 }
 
-async function fetchLikesData(authManager: MongodbAuthManager): Promise<Meme[]> {
+async function fetchLikesData(authManager: MongodbAuthManager, retries = 3): Promise<Meme[]> {
+    if (retries <= 0) {
+        console.error("Maximum auth retry attempts exceeded");
+        return [];
+    }
+
     let token: string;
     try {
         token = await authManager.getAccessToken();
@@ -109,15 +114,12 @@ async function fetchLikesData(authManager: MongodbAuthManager): Promise<Meme[]> 
         });
         return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, "", item.likes, authManager));
     } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            if (error.response.status === 401) {
-                authManager.token = "";
-                return fetchLikesData(authManager);
-            }
-            console.error(`HTTP error! Status: ${error.response.status}`);
-        } else {
-            console.error("Error fetching likes data:", error);
+        if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
+            authManager.token = "";
+            console.error("Unauthorized; attempting retry with new token");
+            return fetchLikesData(authManager, retries - 1);
         }
+        console.error("Error fetching likes data:", error);
         return [];
     }
 }
