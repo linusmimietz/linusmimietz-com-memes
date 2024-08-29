@@ -8,3 +8,7 @@ html, body {
   padding: 24px;
 }
 
+div {
+  color: #f00;
+  font-family: 'Sequel Sans Body';
+}

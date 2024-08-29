@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import { Button, ConfigProvider, Space } from 'antd';
 import './assets/fonts/fontfaces.css';
+import { Button, ConfigProvider, Space, Typography } from 'antd';
 
 function App() {
   return (
@@ -11,16 +11,19 @@ function App() {
         colorPrimary: '#303030',
         colorTextBase: '#303030',
         borderRadius: 4,
+        fontFamily: 'Sequel Sans Body'
       },
     }}
   >
     <div className="App">
-      <h1>Ant Design</h1>
-      <p>with custom theme</p>
-      <Space>
+      <Space direction="vertical">
+        <Typography.Title>Ant Design</Typography.Title>
+        <Typography.Text>with custom theme</Typography.Text>
         <Button type="primary">Click Me</Button>
-        </Space>
-
+        <div>
+          Font test
+        </div>
+      </Space>
     </div>
   </ConfigProvider>
   );

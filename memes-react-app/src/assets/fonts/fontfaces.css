@@ -1,27 +1,20 @@
-/* @font-face {
+@font-face {
   font-family: 'Sequel Sans Body';
-  src: url('./assets/fonts/Sequel Sans Bold Body.ttf') format('ttf');
+  src: url('./Sequel Sans Bold Body.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
-} */
-
-@font-face {
-    font-family: 'Sequel Sans Body';
-    src: url('./Sequel Sans Book Body.ttf') format('ttf');
-    font-weight: 400;
-    font-style: normal;
-  }
+}
 
   @font-face {
     font-family: 'Sequel Sans Body';
-    src: url('./Sequel Sans Book Body.ttf') format('ttf');
+    src: url('./Sequel Sans Book Body.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
   
-  /* @font-face {
+  @font-face {
     font-family: 'Sequel Sans Semi Head';
-    src: url('./assets/fonts/Sequel Sans Semi Bold Head.ttf') format('ttf');
+    src: url('./Sequel Sans Semi Bold Head.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
-  } */
+  }
