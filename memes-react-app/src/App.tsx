@@ -44,7 +44,7 @@ function App() {
             </div>
 
             <div className="control-container">
-              <Progress percent={((currentMemeIndex + 1) / memes.length) * 100} />
+              <Progress percent={((currentMemeIndex + 1) / memes.length) * 100} status={"normal"} />
               <div className="button-group">
                 <Button onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} disabled={currentMemeIndex === 0}>
                   Back
