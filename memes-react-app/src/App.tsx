@@ -30,7 +30,9 @@ function App() {
             </div>
             <div className="control-container">
               <Button onClick={() => setCurrentMemeIndex((currentMemeIndex - 1 + memes.length) % memes.length)}>Back</Button>
-              <Button onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}>{memes[currentMemeIndex].likes} Likes</Button>
+              <Button danger type={memes[currentMemeIndex].selfliked ? "primary" : undefined} onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}>
+                {memes[currentMemeIndex].likes} Likes
+              </Button>
               <Button onClick={() => setCurrentMemeIndex((currentMemeIndex + 1) % memes.length)}>Next</Button>
             </div>
           </div>

@@ -9,6 +9,7 @@ export class Meme {
   id: string;
   url: string;
   likes: number;
+  selfliked: boolean = false;
   authManager: IAuthManager;
 
   constructor(id: string, url: string, likes: number = 0, authManager: IAuthManager) {
@@ -42,7 +43,7 @@ export class MongodbAuthManager implements IAuthManager {
 }
 
 export const likeMeme = async (meme: Meme, setMemes: React.Dispatch<React.SetStateAction<Meme[]>>, memes: Meme[], index: number): Promise<void> => {
-  const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, likes: m.likes + 1 } : m));
+  const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, likes: m.likes + 1, selfliked: true } : m));
   setMemes(updatedMemes);
   let token;
   try {
