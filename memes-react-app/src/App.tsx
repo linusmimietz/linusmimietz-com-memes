@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./assets/fonts/fontfaces.css";
-import { Button, Progress, Spin, Alert, ConfigProvider } from "antd";
+import { Button, Progress, Spin, Alert, Result, ConfigProvider } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { Meme, getMemes, likeMeme } from "./api";
@@ -10,6 +10,7 @@ function App() {
   var [memes, setMemes] = useState<Meme[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
   var [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  var myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
   }, []);
@@ -31,43 +32,61 @@ function App() {
       <div className="container">
         {memes.length > 0 && (
           <div>
-            {memes[currentMemeIndex].isVideo ? (
-              <div className="meme-video">
-                <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
-              </div>
+            {currentMemeIndex === memes.length ? (
+              <Result
+                status="success"
+                title="You've reached the end"
+                subTitle={`In total you've viewed ${memes.length} memes and awared ${myTotalLikes} like${myTotalLikes === 1 ? "" : "s"}. Got any more awesome memes to share? Contact me!`}
+                extra={[
+                  <Button type="primary" key="restart" onClick={() => setCurrentMemeIndex(0)}>
+                    Restart
+                  </Button>,
+                  <Button key="reload" onClick={() => window.open("https://www.linkedin.com/in/linusmimietz/", "_blank")}>
+                    Message via LinkedIn
+                  </Button>,
+                ]}
+              />
             ) : (
-              <div className="meme-image">
-                <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                  <img
-                    src={memes[currentMemeIndex].url}
-                    alt="meme"
-                    onLoad={() => {
-                      setImageLoading(false);
-                    }}
-                    style={{ opacity: imageLoading ? 0 : 100, width: "100%" }}
-                  />
-                </Spin>
+              <div>
+                {memes[currentMemeIndex].isVideo ? (
+                  <div className="meme-video">
+                    <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
+                  </div>
+                ) : (
+                  <div className="meme-image">
+                    <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                      <img
+                        src={memes[currentMemeIndex].url}
+                        alt="meme"
+                        onLoad={() => {
+                          setImageLoading(false);
+                        }}
+                        style={{ opacity: imageLoading ? 0 : 100, width: "100%" }}
+                      />
+                    </Spin>
+                  </div>
+                )}
+                <div className="control-container">
+                  <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 100)} status={"normal"} />
+                  {/* <Alert message="No more than 10 likes. Sorry!" type="error" showIcon closable /> */}
+                  <div className="button-group">
+                    <Button onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} disabled={currentMemeIndex === 0}>
+                      Back
+                    </Button>
+                    <Button danger type={memes[currentMemeIndex].selfliked ? "primary" : undefined} onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}>
+                      {memes[currentMemeIndex].totalLikes} Likes
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setCurrentMemeIndex(currentMemeIndex + 1);
+                      }}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
-            <div className="control-container">
-              <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 100)} status={"normal"} />
-              {/* <Alert message="No more than 10 likes. Sorry!" type="error" showIcon closable /> */}
-              <div className="button-group">
-                <Button onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} disabled={currentMemeIndex === 0}>
-                  Back
-                </Button>
-                <Button danger type={memes[currentMemeIndex].selfliked ? "primary" : undefined} onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}>
-                  {memes[currentMemeIndex].totalLikes} Likes
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCurrentMemeIndex((currentMemeIndex + 1) % memes.length);
-                  }}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
           </div>
         )}
       </div>
