@@ -8,14 +8,15 @@ interface IAuthManager {
 export class Meme {
   id: string;
   url: string;
-  likes: number;
+  totalLikes: number;
   selfliked: boolean = false;
+  myLikes: number = 0;
   authManager: IAuthManager;
 
-  constructor(id: string, url: string, likes: number = 0, authManager: IAuthManager) {
+  constructor(id: string, url: string, totalLikes: number = 0, authManager: IAuthManager) {
     this.id = id;
     this.url = url;
-    this.likes = likes;
+    this.totalLikes = totalLikes;
     this.authManager = authManager;
   }
 }
@@ -43,7 +44,10 @@ export class MongodbAuthManager implements IAuthManager {
 }
 
 export const likeMeme = async (meme: Meme, setMemes: React.Dispatch<React.SetStateAction<Meme[]>>, memes: Meme[], index: number): Promise<void> => {
-  const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, likes: m.likes + 1, selfliked: true } : m));
+  if (meme.myLikes >= 10) {
+    return;
+  }
+  const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, totalLikes: m.totalLikes + 1, selfliked: true, myLikes: m.myLikes + 1 } : m));
   setMemes(updatedMemes);
   let token;
   try {
@@ -115,16 +119,16 @@ async function fetchLikesData(authManager: MongodbAuthManager, retries = 3): Pro
       console.error("Unauthorized; attempting retry with new token");
       return fetchLikesData(authManager, retries - 1);
     }
-    console.error("Error fetching likes data:", error);
+    console.error("Error fetching totalLikes data:", error);
     return [];
   }
 }
 
-async function mergeData(fileMemes: Meme[], likesData: Meme[]): Promise<Meme[]> {
-  const likesMap = new Map(likesData.map((meme) => [meme.id, meme.likes]));
+async function mergeData(fileMemes: Meme[], totalLikesData: Meme[]): Promise<Meme[]> {
+  const totalLikesMap = new Map(totalLikesData.map((meme) => [meme.id, meme.totalLikes]));
   fileMemes.forEach((meme) => {
-    if (likesMap.has(meme.id)) {
-      meme.likes = likesMap.get(meme.id) || 0;
+    if (totalLikesMap.has(meme.id)) {
+      meme.totalLikes = totalLikesMap.get(meme.id) || 0;
     }
   });
   return fileMemes;
@@ -137,10 +141,10 @@ export async function getMemes(): Promise<Meme[]> {
     console.log("XML data fetched:", xmlData);
     const memeFiles = await parseXML(xmlData, authManager);
     console.log("Meme files parsed:", memeFiles);
-    const likesData = await fetchLikesData(authManager);
-    console.log("Likes data fetched:", likesData);
-    const memes = await mergeData(memeFiles, likesData);
-    console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.likes}`).join("\n"));
+    const totalLikesData = await fetchLikesData(authManager);
+    console.log("Likes data fetched:", totalLikesData);
+    const memes = await mergeData(memeFiles, totalLikesData);
+    console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes}`).join("\n"));
     return memes;
   } catch (error) {
     console.error("Error in getMemes:", error);

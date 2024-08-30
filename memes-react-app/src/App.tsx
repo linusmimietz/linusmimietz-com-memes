@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./assets/fonts/fontfaces.css";
-import { Button, Progress, Spin, ConfigProvider } from "antd";
+import { Button, Progress, Spin, Alert, ConfigProvider } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Meme, getMemes, likeMeme } from "./api";
 
@@ -45,12 +45,13 @@ function App() {
 
             <div className="control-container">
               <Progress percent={((currentMemeIndex + 1) / memes.length) * 100} status={"normal"} />
+              {/* <Alert message="No more than 10 likes. Sorry!" type="error" showIcon closable /> */}
               <div className="button-group">
                 <Button onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} disabled={currentMemeIndex === 0}>
                   Back
                 </Button>
                 <Button danger type={memes[currentMemeIndex].selfliked ? "primary" : undefined} onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}>
-                  {memes[currentMemeIndex].likes} Likes
+                  {memes[currentMemeIndex].totalLikes} Likes
                 </Button>
                 <Button onClick={() => setCurrentMemeIndex((currentMemeIndex + 1) % memes.length)}>Next</Button>
               </div>
