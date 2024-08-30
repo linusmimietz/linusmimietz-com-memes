@@ -8,14 +8,16 @@ interface IAuthManager {
 export class Meme {
   id: string;
   url: string;
+  isVideo: boolean;
   totalLikes: number;
   selfliked: boolean = false;
   myLikes: number = 0;
   authManager: IAuthManager;
 
-  constructor(id: string, url: string, totalLikes: number = 0, authManager: IAuthManager) {
+  constructor(id: string, url: string = "", isVideo: boolean = false, totalLikes: number = 0, authManager: IAuthManager) {
     this.id = id;
     this.url = url;
+    this.isVideo = isVideo;
     this.totalLikes = totalLikes;
     this.authManager = authManager;
   }
@@ -87,7 +89,11 @@ async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]>
     const key = file.getElementsByTagName("Key")[0].textContent!;
     const fileId = file.getElementsByTagName("ETag")[0].textContent!.replace(/"/g, "");
     const fileUrl = `${digitaloceanSpaceUrl}/${encodeURIComponent(key)}`;
-    memes.push(new Meme(fileId, fileUrl, 0, authManager));
+    var isVideo: boolean = false;
+    if (key.match(/.(mp4|webm|ogg|avi|wmv|flv|mov|3gp)$/i)) {
+      isVideo = true;
+    }
+    memes.push(new Meme(fileId, fileUrl, isVideo, undefined, authManager));
   });
   return memes;
 }
@@ -112,7 +118,7 @@ async function fetchLikesData(authManager: MongodbAuthManager, retries = 3): Pro
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, "", item.likes, authManager));
+    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, undefined, undefined, item.likes, authManager));
   } catch (error) {
     if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
       authManager.token = "";
@@ -144,7 +150,7 @@ export async function getMemes(): Promise<Meme[]> {
     const totalLikesData = await fetchLikesData(authManager);
     console.log("Likes data fetched:", totalLikesData);
     const memes = await mergeData(memeFiles, totalLikesData);
-    console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes}`).join("\n"));
+    console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo}`).join("\n"));
     return memes;
   } catch (error) {
     console.error("Error in getMemes:", error);

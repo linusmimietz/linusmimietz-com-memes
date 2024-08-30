@@ -1,17 +1,17 @@
+.plyr {
+  --plyr-color-main: #1777ff;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
   background: #fff;
+  font-family: "Sequel Sans Body";
 }
 
 #root {
   padding: 24px;
-}
-
-div {
-  color: #f00;
-  font-family: "Sequel Sans Body";
 }
 
 .container {
@@ -20,7 +20,8 @@ div {
   padding: 0 32px;
 }
 
-.meme-image {
+.meme-image,
+.meme-video {
   height: 800px;
   background: #f0f0f0;
   display: flex;
@@ -40,6 +41,10 @@ div {
 
 .ant-spin-nested-loading > div:not(.ant-spin-container) {
   position: absolute;
+}
+
+.plyr {
+  height: 800px;
 }
 
 .control-container {
