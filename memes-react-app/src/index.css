@@ -43,10 +43,6 @@ body {
   position: absolute;
 }
 
-.plyr {
-  height: 800px;
-}
-
 .control-container {
   display: flex;
   justify-content: center;
