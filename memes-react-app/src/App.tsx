@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./assets/fonts/fontfaces.css";
-import { Button, Progress, ConfigProvider } from "antd";
+import { Button, Progress, Spin, ConfigProvider } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { Meme, getMemes, likeMeme } from "./api";
 
 function App() {
   var [memes, setMemes] = useState<Meme[]>([]);
+  const [imageLoading, setImageLoading] = useState(false);
+  var [currentMemeIndex, setCurrentMemeIndex] = useState(0);
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
   }, []);
-  var [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  useEffect(() => {
+    setImageLoading(true);
+  }, [currentMemeIndex]);
 
   return (
     <ConfigProvider
@@ -26,7 +31,16 @@ function App() {
         {memes.length > 0 && (
           <div>
             <div className="meme-image">
-              <img src={memes[currentMemeIndex].url} alt="meme" />
+              <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                <img
+                  src={memes[currentMemeIndex].url}
+                  alt="meme"
+                  onLoad={() => {
+                    setImageLoading(false);
+                  }}
+                  style={{ opacity: imageLoading ? 0 : 100, width: "100%" }}
+                />
+              </Spin>
             </div>
 
             <div className="control-container">
