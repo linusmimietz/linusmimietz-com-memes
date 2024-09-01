@@ -46,7 +46,7 @@ export class MongodbAuthManager implements IAuthManager {
 }
 
 export const likeMeme = async (meme: Meme, setMemes: React.Dispatch<React.SetStateAction<Meme[]>>, memes: Meme[], index: number): Promise<void> => {
-  if (meme.myLikes >= 10) {
+  if (meme.myLikes >= 50) {
     return;
   }
   const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, totalLikes: m.totalLikes + 1, selfliked: true, myLikes: m.myLikes + 1 } : m));

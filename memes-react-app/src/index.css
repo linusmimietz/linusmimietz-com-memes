@@ -6,7 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: #fff;
+  background: #f2f2f2;
   font-family: "Sequel Sans Body";
 }
 
@@ -31,7 +31,7 @@ body {
 .meme-image,
 .meme-video {
   height: 800px;
-  background: #f0f0f0;
+  background: #e6e6e6;
   display: flex;
   justify-content: center;
   align-items: center;

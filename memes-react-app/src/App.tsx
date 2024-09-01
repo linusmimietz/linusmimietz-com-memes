@@ -6,6 +6,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { Meme, getMemes, likeMeme } from "./api";
 import ButtonComponent from "./ButtonComponent";
+import ConfettiAnimation from "./assets/animations/confetti-1.json";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
 
@@ -65,7 +66,7 @@ function App() {
                   </div>
                 )}
                 <div className="control-container">
-                  <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 100)} status={"normal"} />
+                  <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E6E6E6"} />
                   <div className="button-group">
                     <ButtonComponent
                       text="Back to Previous"
@@ -76,13 +77,13 @@ function App() {
                       disabled={currentMemeIndex === 0}
                     />
                     <ButtonComponent
-                      text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : "s"}`}
+                      text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : memes[currentMemeIndex].totalLikes === 1 ? "" : "s"}`}
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
-                      minWidth="112px"
+                      minWidth="114px"
                       onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
-                      disabled={memes[currentMemeIndex].myLikes >= 10}
-                      lottieAnimation={"./assets/animations/confetti-1.json"}
+                      disabled={memes[currentMemeIndex].myLikes >= 50}
+                      lottieAnimation={ConfettiAnimation}
                     />
                     <ButtonComponent text="Next Random Meme" textColor="#FFFFFF" backgroundColor="#303030" onClick={() => setCurrentMemeIndex(currentMemeIndex + 1)} iconRight={<ShuffleIcon color="#FFFFFF" />} />
                   </div>
