@@ -41,7 +41,8 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
             zIndex: 0,
           }}
           loop={false}
-          goTo={60}
+          segments={[10, 30]}
+          speed={1.5}
           onComplete={() => setIsAnimating(false)}
         />
       )}
