@@ -15,36 +15,45 @@ interface ButtonProps {
 }
 
 const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation }) => {
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [animations, setAnimations] = useState<Array<{ id: number; isAnimating: boolean; rotation: number }>>([]);
 
   const handleButtonClick = () => {
     onClick();
-    if (true) {
-      setIsAnimating(true);
-    }
+    // Add a new animation instance to the array
+    const newRotation = animations.length === 0 ? 0 : Math.random() * 360; // Rotation is 0 if it's the first animation, otherwise random
+    setAnimations((prev) => [...prev, { id: Date.now(), isAnimating: true, rotation: newRotation }]);
+  };
+
+  const handleAnimationComplete = (id: number) => {
+    // Remove the animation from the array after it completes
+    setAnimations((prev) => prev.filter((animation) => animation.id !== id));
   };
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
-      {true && isAnimating && (
-        <Lottie
-          animationData={ConfettiAnimation}
-          play
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "250px",
-            height: "250px",
-            pointerEvents: "none", // Allows clicks to pass through to button
-            zIndex: 0,
-          }}
-          loop={false}
-          segments={[10, 30]}
-          speed={1.5}
-          onComplete={() => setIsAnimating(false)}
-        />
+      {animations.map(
+        (animation) =>
+          animation.isAnimating && (
+            <Lottie
+              key={animation.id}
+              animationData={ConfettiAnimation}
+              play
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: `translate(-50%, -50%) rotate(${animation.rotation}deg)`,
+                width: "250px",
+                height: "250px",
+                pointerEvents: "none", // Allows clicks to pass through to button
+                zIndex: 0,
+              }}
+              loop={false}
+              segments={[10, 30]}
+              speed={1.5}
+              onComplete={() => handleAnimationComplete(animation.id)}
+            />
+          )
       )}
       <AntButton
         onClick={handleButtonClick}
