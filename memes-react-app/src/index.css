@@ -20,6 +20,14 @@ body {
   padding: 0 32px;
 }
 
+.custom-button {
+  font-family: "Sequel Sans Semi Head", sans-serif;
+}
+
+.custom-button:hover {
+  filter: brightness(70%);
+}
+
 .meme-image,
 .meme-video {
   height: 800px;
@@ -53,6 +61,6 @@ body {
 .control-container .button-group {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
   padding-top: 32px;
 }
