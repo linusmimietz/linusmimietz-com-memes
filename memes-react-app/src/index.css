@@ -24,7 +24,7 @@ body {
   font-family: "Sequel Sans Semi Head", sans-serif;
 }
 
-.custom-button:hover {
+.custom-button:not(:disabled):hover {
   filter: brightness(70%);
 }
 

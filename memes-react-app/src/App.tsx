@@ -6,17 +6,19 @@ import { LoadingOutlined } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { Meme, getMemes, likeMeme } from "./api";
 import ButtonComponent from "./ButtonComponent";
-import BackIcon from "./assets/images/Back.svg";
-import ShuffleIcon from "./assets/images/Shuffle.svg";
+import { BackIcon } from "./assets/images/Back";
+import { ShuffleIcon } from "./assets/images/Shuffle";
 
 function App() {
-  var [memes, setMemes] = useState<Meme[]>([]);
+  const [memes, setMemes] = useState<Meme[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
-  var [currentMemeIndex, setCurrentMemeIndex] = useState(0);
-  var myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
+  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
+
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
   }, []);
+
   useEffect(() => {
     setImageLoading(true);
   }, [currentMemeIndex]);
@@ -39,7 +41,7 @@ function App() {
               <Result
                 status="success"
                 title="You've reached the end"
-                subTitle={`In total you've viewed ${memes.length} memes and awared ${myTotalLikes} like${myTotalLikes === 1 ? "" : "s"}. Got any more awesome memes to share? Contact me!`}
+                subTitle={`In total you've viewed ${memes.length} memes and awarded ${myTotalLikes} like${myTotalLikes === 1 ? "" : "s"}. Got any more awesome memes to share? Contact me!`}
                 extra={[
                   <Button type="primary" key="restart" onClick={() => setCurrentMemeIndex(0)}>
                     Restart
@@ -58,31 +60,31 @@ function App() {
                 ) : (
                   <div className="meme-image">
                     <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                      <img
-                        src={memes[currentMemeIndex].url}
-                        alt="meme"
-                        onLoad={() => {
-                          setImageLoading(false);
-                        }}
-                        style={{ opacity: imageLoading ? 0 : 100, width: "100%" }}
-                      />
+                      <img src={memes[currentMemeIndex].url} alt="meme" onLoad={() => setImageLoading(false)} style={{ opacity: imageLoading ? 0 : 100, width: "100%" }} />
                     </Spin>
                   </div>
                 )}
                 <div className="control-container">
                   <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 100)} status={"normal"} />
-                  {/* <Alert message="No more than 10 likes. Sorry!" type="error" showIcon closable /> */}
                   <div className="button-group">
-                    <ButtonComponent text="Back to Previous" textColor="#000000" backgroundColor="#DADADA" onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} iconLeft={BackIcon} />
+                    <ButtonComponent
+                      text="Back to Previous"
+                      textColor="#000000"
+                      backgroundColor="#DADADA"
+                      onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)}
+                      iconLeft={<BackIcon color="#000000" />}
+                      disabled={currentMemeIndex === 0}
+                    />
                     <ButtonComponent
                       text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : "s"}`}
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
                       minWidth="112px"
                       onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
+                      disabled={memes[currentMemeIndex].myLikes >= 10}
                       lottieAnimation={"./assets/animations/confetti-1.json"}
                     />
-                    <ButtonComponent text="Next Random Meme" textColor="#FFFFFF" backgroundColor="#303030" onClick={() => setCurrentMemeIndex(currentMemeIndex + 1)} iconRight={ShuffleIcon} />
+                    <ButtonComponent text="Next Random Meme" textColor="#FFFFFF" backgroundColor="#303030" onClick={() => setCurrentMemeIndex(currentMemeIndex + 1)} iconRight={<ShuffleIcon color="#FFFFFF" />} />
                   </div>
                 </div>
               </div>

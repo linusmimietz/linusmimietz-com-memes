@@ -9,25 +9,66 @@ interface ButtonProps {
   backgroundColor: string;
   minWidth?: string;
   onClick: () => void;
-  iconLeft?: string;
-  iconRight?: string;
+  iconLeft?: React.ReactNode; // Expects a React node for SVG icon
+  iconRight?: React.ReactNode;
   lottieAnimation?: string; // Path to the Lottie JSON file
+  disabled?: boolean; // Boolean to control disabled state
 }
 
-const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation }) => {
+const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false }) => {
   const [animations, setAnimations] = useState<Array<{ id: number; isAnimating: boolean; rotation: number }>>([]);
 
   const handleButtonClick = () => {
-    onClick();
-    // Add a new animation instance to the array
-    const newRotation = animations.length === 0 ? 0 : Math.random() * 360; // Rotation is 0 if it's the first animation, otherwise random
-    setAnimations((prev) => [...prev, { id: Date.now(), isAnimating: true, rotation: newRotation }]);
+    if (!disabled) {
+      onClick();
+      const newRotation = animations.length === 0 ? 0 : Math.random() * 360;
+      setAnimations((prev) => [...prev, { id: Date.now(), isAnimating: true, rotation: newRotation }]);
+    }
   };
 
   const handleAnimationComplete = (id: number) => {
-    // Remove the animation from the array after it completes
     setAnimations((prev) => prev.filter((animation) => animation.id !== id));
   };
+
+  const buttonStyle = disabled
+    ? {
+        color: backgroundColor,
+        backgroundColor: "transparent",
+        borderColor: backgroundColor,
+        paddingLeft: "20px",
+        paddingRight: "20px",
+        paddingTop: "12px",
+        paddingBottom: "14px",
+        fontSize: "18px",
+        lineHeight: "120%",
+        borderRadius: "4px",
+        minWidth,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "none",
+        height: "auto",
+        borderWidth: "1px",
+        borderStyle: "solid",
+      }
+    : {
+        color: textColor,
+        backgroundColor,
+        borderColor: "transparent",
+        paddingLeft: "20px",
+        paddingRight: "20px",
+        paddingTop: "12px",
+        paddingBottom: "14px",
+        fontSize: "18px",
+        lineHeight: "120%",
+        borderRadius: "4px",
+        minWidth,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "none",
+        height: "auto",
+      };
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -45,7 +86,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
                 transform: `translate(-50%, -50%) rotate(${animation.rotation}deg)`,
                 width: "250px",
                 height: "250px",
-                pointerEvents: "none", // Allows clicks to pass through to button
+                pointerEvents: "none",
                 zIndex: 0,
               }}
               loop={false}
@@ -55,31 +96,10 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
             />
           )
       )}
-      <AntButton
-        onClick={handleButtonClick}
-        style={{
-          color: textColor,
-          backgroundColor: backgroundColor,
-          paddingLeft: "20px",
-          paddingRight: "20px",
-          paddingTop: "12px",
-          paddingBottom: "14px",
-          fontSize: "18px",
-          lineHeight: "120%",
-          borderRadius: "4px",
-          minWidth: minWidth,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderColor: "transparent",
-          boxShadow: "none",
-          height: "auto",
-        }}
-        className="custom-button"
-      >
-        {iconLeft && <img src={iconLeft} alt="Icon Left" style={{ width: "24px", height: "24px", marginRight: "8px" }} />}
+      <AntButton onClick={handleButtonClick} style={buttonStyle} className="custom-button" disabled={disabled}>
+        {iconLeft && React.cloneElement(iconLeft as React.ReactElement, { color: disabled ? backgroundColor : textColor, style: { width: "24px", height: "24px", marginRight: "8px" } })}
         {text}
-        {iconRight && <img src={iconRight} alt="Icon Right" style={{ width: "24px", height: "24px", marginLeft: "8px" }} />}
+        {iconRight && React.cloneElement(iconRight as React.ReactElement, { color: disabled ? backgroundColor : textColor, style: { width: "24px", height: "24px", marginLeft: "8px" } })}
       </AntButton>
     </div>
   );
