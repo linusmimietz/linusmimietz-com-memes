@@ -74,7 +74,14 @@ function App() {
                   {/* <Alert message="No more than 10 likes. Sorry!" type="error" showIcon closable /> */}
                   <div className="button-group">
                     <ButtonComponent text="Back to Previous" textColor="#000000" backgroundColor="#DADADA" onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)} iconLeft={BackIcon} />
-                    <ButtonComponent text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : "s"}`} textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"} backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"} minWidth="112px" onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)} />
+                    <ButtonComponent
+                      text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : "s"}`}
+                      textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
+                      backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
+                      minWidth="112px"
+                      onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
+                      lottieAnimation={"./assets/animations/confetti-1.json"}
+                    />
                     <ButtonComponent text="Next Random Meme" textColor="#FFFFFF" backgroundColor="#303030" onClick={() => setCurrentMemeIndex(currentMemeIndex + 1)} iconRight={ShuffleIcon} />
                   </div>
                 </div>
