@@ -14,9 +14,11 @@ import ColorThief from "colorthief";
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
   const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
-  const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
+  const [showVideoControls, setShowVideoControls] = useState(false);
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
+  const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
 
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
@@ -24,6 +26,7 @@ function App() {
 
   useEffect(() => {
     setImageLoading(true);
+    setVideoLoading(true);
     if (memes[currentMemeIndex] && memes[currentMemeIndex].isVideo) {
       setImageBackgroundColor("");
     }
@@ -77,8 +80,10 @@ function App() {
               <div>
                 <div className="meme-container">
                   {memes[currentMemeIndex].isVideo ? (
-                    <div className="meme-video">
-                      <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
+                    <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
+                      <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                        <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={showVideoControls} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" onStart={() => setVideoLoading(false)} style={{ opacity: videoLoading ? 0 : 1 }} />
+                      </Spin>
                     </div>
                   ) : (
                     <div className="meme-image" style={{ backgroundColor: imageBackgroundColor || undefined }}>
