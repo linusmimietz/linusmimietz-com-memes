@@ -38,7 +38,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background 0.2s;
+  transition: background 0.1s;
 }
 
 .meme-image * {
@@ -49,6 +49,7 @@ body {
 
 .meme-image img {
   object-fit: contain;
+  transition: opacity 0.1s;
 }
 
 .ant-spin-nested-loading > div:not(.ant-spin-container) {
