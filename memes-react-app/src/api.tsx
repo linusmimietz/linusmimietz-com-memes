@@ -144,13 +144,13 @@ export async function getMemes(): Promise<Meme[]> {
   const authManager = new MongodbAuthManager();
   try {
     const xmlData = await fetchXML(`${digitaloceanSpaceUrl}?list-type=2`);
-    console.log("XML data fetched:", xmlData);
+    // console.log("XML data fetched:", xmlData);
     const memeFiles = await parseXML(xmlData, authManager);
-    console.log("Meme files parsed:", memeFiles);
+    // console.log("Meme files parsed:", memeFiles);
     const totalLikesData = await fetchLikesData(authManager);
-    console.log("Likes data fetched:", totalLikesData);
+    // console.log("Likes data fetched:", totalLikesData);
     const memes = await mergeData(memeFiles, totalLikesData);
-    console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo}`).join("\n"));
+    // console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo}`).join("\n"));
     return memes;
   } catch (error) {
     console.error("Error in getMemes:", error);
