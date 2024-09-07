@@ -28,13 +28,17 @@ body {
   filter: brightness(70%);
 }
 
+.meme-container {
+  background: #e6e6e6;
+}
+
 .meme-image,
 .meme-video {
   height: 800px;
-  background: #e6e6e6;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: background 0.2s;
 }
 
 .meme-image * {

@@ -9,6 +9,7 @@ import ButtonComponent from "./ButtonComponent";
 import ConfettiAnimation from "./assets/animations/confetti-1.json";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
+import ColorThief from "colorthief";
 
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
@@ -23,6 +24,21 @@ function App() {
   useEffect(() => {
     setImageLoading(true);
   }, [currentMemeIndex]);
+
+  function imageOnLoad(event: any) {
+    setImageLoading(false);
+    const img = event.target;
+    if (img.complete) {
+      const colorThief = new ColorThief();
+      try {
+        const color = colorThief.getColor(img);
+        if (color) document.querySelector(".meme-image")?.setAttribute("style", `background: rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.3);`);
+        console.log("Dominant color of the image: ", color);
+      } catch (error) {
+        console.error("Error getting color from image: ", error);
+      }
+    }
+  }
 
   return (
     <ConfigProvider
@@ -54,17 +70,19 @@ function App() {
               />
             ) : (
               <div>
-                {memes[currentMemeIndex].isVideo ? (
-                  <div className="meme-video">
-                    <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
-                  </div>
-                ) : (
-                  <div className="meme-image">
-                    <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                      <img src={memes[currentMemeIndex].url} alt="meme" onLoad={() => setImageLoading(false)} style={{ opacity: imageLoading ? 0 : 100, width: "100%" }} />
-                    </Spin>
-                  </div>
-                )}
+                <div className="meme-container">
+                  {memes[currentMemeIndex].isVideo ? (
+                    <div className="meme-video">
+                      <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
+                    </div>
+                  ) : (
+                    <div className="meme-image">
+                      <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 100, width: "100%" }} />
+                      </Spin>
+                    </div>
+                  )}
+                </div>
                 <div className="control-container">
                   <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E6E6E6"} />
                   <div className="button-group">
