@@ -16,6 +16,7 @@ function App() {
   const [imageLoading, setImageLoading] = useState(false);
   const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
+  const [imageBackgroundColor, setImageBackgroundColor] = useState("");
 
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
@@ -23,6 +24,10 @@ function App() {
 
   useEffect(() => {
     setImageLoading(true);
+    if (memes[currentMemeIndex] && memes[currentMemeIndex].isVideo) {
+      setImageBackgroundColor("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMemeIndex]);
 
   function imageOnLoad(event: any) {
@@ -32,7 +37,7 @@ function App() {
       const colorThief = new ColorThief();
       try {
         const color = colorThief.getColor(img);
-        if (color) document.querySelector(".meme-image")?.setAttribute("style", `background: rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.3);`);
+        if (color) setImageBackgroundColor(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.3)`);
         console.log("Dominant color of the image: ", color);
       } catch (error) {
         console.error("Error getting color from image: ", error);
@@ -76,9 +81,9 @@ function App() {
                       <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={true} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" />
                     </div>
                   ) : (
-                    <div className="meme-image">
+                    <div className="meme-image" style={{ backgroundColor: imageBackgroundColor || undefined }}>
                       <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 100, width: "100%" }} />
+                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1, width: "100%" }} />
                       </Spin>
                     </div>
                   )}
