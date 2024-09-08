@@ -165,8 +165,10 @@ export async function getMemes(): Promise<Meme[]> {
     const memes = await mergeData(memeFiles, totalLikesData);
     // console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo} | ID: ${meme.id}`).join("\n"));
     const randomizedMemes = memes.sort((a, b) => {
-      if (a.id === "4037c0ffabf9332e329a3ec75ff958e8") return -1;
-      if (b.id === "4037c0ffabf9332e329a3ec75ff958e8") return 1;
+      const aFilename = a.url.split("/").pop()?.split(".")[0].toLowerCase();
+      const bFilename = b.url.split("/").pop()?.split(".")[0].toLowerCase();
+      if (aFilename === "start") return -1;
+      if (bFilename === "start") return 1;
       return Math.random() - 0.5;
     });
     return randomizedMemes;
