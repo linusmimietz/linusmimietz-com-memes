@@ -43,7 +43,7 @@ function App() {
     var index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
     if (!memes || !memes.length) return index;
     if (memes[index].isVideo) {
-      for (let i = index; i > 0; i--) {
+      for (let i = index - 1; i > 0; i--) {
         if (!memes[i].isVideo) {
           return i;
         }
