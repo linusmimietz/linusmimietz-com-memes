@@ -20,7 +20,15 @@ import "./assets/fonts/fontfaces.css";
 function App() {
   const [memes, setMemes] = useState<Meme[]>(() => {
     const cachedMemes = localStorage.getItem("cachedMemes");
-    return cachedMemes ? JSON.parse(cachedMemes) : [];
+    const cachedTimestamp = localStorage.getItem("cachedTimestamp");
+    if (cachedMemes && cachedTimestamp) {
+      const currentTime = new Date().getTime();
+      const cacheAge = currentTime - parseInt(cachedTimestamp, 10);
+      if (cacheAge < 24 * 60 * 60 * 1000) {
+        return JSON.parse(cachedMemes);
+      }
+    }
+    return [];
   });
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
@@ -39,6 +47,7 @@ function App() {
       getMemes().then((fetchedMemes) => {
         setMemes(fetchedMemes);
         localStorage.setItem("cachedMemes", JSON.stringify(fetchedMemes));
+        localStorage.setItem("cachedTimestamp", new Date().getTime().toString());
       });
     }
   }, [memes.length]);
