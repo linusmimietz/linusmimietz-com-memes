@@ -107,5 +107,3 @@ The project uses custom webpack configuration to ensure proper CSS scoping and o
 ## Note on File Hosting
 
 All meme files (images and videos) should be uploaded to the DigitalOcean Space "linus-mimietz-com-memes". The application is configured to fetch memes from this location.
-
-Remember to update the Webflow project with the new filenames for the JavaScript and CSS files after each build. This ensures that the latest version of the app is being used on your Webflow site.
