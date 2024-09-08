@@ -1,5 +1,6 @@
 #react-root-meme-app {
-  padding: 32px 0;
+  /* padding: 32px 0; */
+  padding: 0;
   margin: 0;
   background: #f2f2f2;
   font-family: "Sequel Sans Body", sans-serif;
@@ -30,9 +31,10 @@ p {
 }
 
 .container {
-  max-width: 1244px;
+  /* max-width: 1244px; */
   margin: 0 auto;
-  padding: 0 32px;
+  /* padding: 0 32px; */
+  padding: 0;
   height: calc(95vh - 80px);
   min-height: 500px;
   max-height: 900px;
