@@ -41,9 +41,9 @@ function App() {
   const [currentMemeIndex, setCurrentMemeIndex] = useState(() => {
     const cachedIndex = localStorage.getItem("currentMemeIndex");
     var index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
-    if (memes.length === 0) return index;
+    if (!memes || !memes.length) return index;
     if (memes[index].isVideo) {
-      for (let i = index - 1; i < memes.length; i--) {
+      for (let i = index; i > 0; i--) {
         if (!memes[i].isVideo) {
           return i;
         }
