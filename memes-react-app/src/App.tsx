@@ -18,6 +18,7 @@ import "./animation.css";
 import "./assets/fonts/fontfaces.css";
 
 function App() {
+  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
   const [memes, setMemes] = useState<Meme[]>(() => {
     const cachedMemes = localStorage.getItem("cachedMemes");
     const cachedTimestamp = localStorage.getItem("cachedTimestamp");
@@ -27,10 +28,25 @@ function App() {
       if (cacheAge < 24 * 60 * 60 * 1000) {
         const parsedMemes = JSON.parse(cachedMemes);
         const authManager = new MongodbAuthManager();
-        return parsedMemes.map((meme: any) => {
+        var newMemes = parsedMemes.map((meme: any) => {
           const newMeme = new Meme(meme.id, authManager, meme);
           return newMeme;
         });
+        // we initiate index here because now the memes are loaded from local storage
+        const cachedIndex = localStorage.getItem("currentMemeIndex");
+        let initialIndex = cachedIndex ? parseInt(cachedIndex, 10) : 0;
+        if (initialIndex < newMemes.length) {
+          for (let i = initialIndex; i >= 0; i--) {
+            if (!newMemes[i].isVideo) {
+              initialIndex = i;
+              break;
+            }
+          }
+        } else {
+          initialIndex = newMemes.length;
+        }
+        setCurrentMemeIndex(initialIndex);
+        return newMemes;
       }
       console.log("Meme cache expired");
     }
@@ -38,19 +54,6 @@ function App() {
   });
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
-  const [currentMemeIndex, setCurrentMemeIndex] = useState(() => {
-    const cachedIndex = localStorage.getItem("currentMemeIndex");
-    var index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
-    if (!memes || !memes.length) return index;
-    if (memes[index].isVideo) {
-      for (let i = index - 1; i > 0; i--) {
-        if (!memes[i].isVideo) {
-          return i;
-        }
-      }
-    }
-    return index;
-  });
   const [showVideoControls, setShowVideoControls] = useState(false);
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
@@ -83,11 +86,35 @@ function App() {
       clearTimeout(alertTimeoutId);
       setAlertTimeoutId(null);
     }
-    if (memes[currentMemeIndex] && memes[currentMemeIndex].isVideo) {
+    if (memes.length > 0 && currentMemeIndex < memes.length && memes[currentMemeIndex].isVideo) {
       setImageBackgroundColor("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMemeIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") {
+        if (memes.length > 0 && currentMemeIndex < memes.length) {
+          setCurrentMemeIndex(currentMemeIndex + 1);
+        }
+      } else if (event.key === "ArrowLeft") {
+        if (memes.length > 0 && currentMemeIndex > 0 && currentMemeIndex < memes.length) {
+          setCurrentMemeIndex(currentMemeIndex - 1);
+        }
+      } else if (event.key === "l" || event.key === "L" || event.key === "ArrowUp") {
+        if (memes.length > 0 && currentMemeIndex < memes.length) {
+          handleLikeClick();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentMemeIndex, memes]);
 
   function imageOnLoad(event: any) {
     setImageLoading(false);
