@@ -38,6 +38,17 @@
   iframe {
     border: none;
   }
+  body::before {
+    content: "";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50vh;
+    z-index: -1;
+    background-color: var(--light-section-background);
+  }
   .w-lightbox-noscroll {
     overflow: auto;
   }
