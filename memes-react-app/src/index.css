@@ -19,6 +19,7 @@ body {
   margin: 0 auto;
   padding: 0 32px;
   height: calc(95vh - 80px);
+  min-height: 500px;
   max-height: 900px;
   display: flex;
   flex-direction: column;
@@ -77,6 +78,8 @@ body {
   flex-direction: column;
   align-items: center;
   padding-top: 24px;
+  width: fit-content;
+  margin: auto;
 }
 
 .progress-bar-container {
