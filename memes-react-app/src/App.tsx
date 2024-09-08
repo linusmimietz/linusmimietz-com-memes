@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Alert, ConfigProvider, Progress, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
@@ -25,7 +25,7 @@ function App() {
     if (cachedMemes && cachedTimestamp) {
       const currentTime = new Date().getTime();
       const cacheAge = currentTime - parseInt(cachedTimestamp, 10);
-      if (cacheAge < 24 * 60 * 60 * 1000) {
+      if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
         const parsedMemes = JSON.parse(cachedMemes);
         const authManager = new MongodbAuthManager();
         var newMemes = parsedMemes.map((meme: any) => {
@@ -59,6 +59,7 @@ function App() {
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
   const [showMaxLikesAlert, setShowMaxLikesAlert] = useState(false);
   const [alertTimeoutId, setAlertTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const likeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (memes.length === 0) {
@@ -104,7 +105,7 @@ function App() {
         }
       } else if (event.key === "l" || event.key === "L" || event.key === "ArrowUp") {
         if (memes.length > 0 && currentMemeIndex < memes.length) {
-          handleLikeClick();
+          triggerLikeButtonClick();
         }
       } else if ((event.key === "r" || event.key === "R") && currentMemeIndex === memes.length) {
         localStorage.removeItem("cachedMemes");
@@ -156,6 +157,12 @@ function App() {
       likeMeme(memes, currentMemeIndex);
       const updatedMemes = memes.map((m, idx) => (idx === currentMemeIndex ? { ...m, totalLikes: m.totalLikes + 1, selfliked: true, myLikes: m.myLikes + 1 } : m));
       setMemes(updatedMemes);
+    }
+  };
+
+  const triggerLikeButtonClick = () => {
+    if (likeButtonRef.current) {
+      likeButtonRef.current.click();
     }
   };
 
@@ -232,6 +239,7 @@ function App() {
                       disabled={currentMemeIndex === 0}
                     />
                     <ButtonComponent
+                      ref={likeButtonRef}
                       text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : memes[currentMemeIndex].totalLikes === 1 ? "" : "s"}`}
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}

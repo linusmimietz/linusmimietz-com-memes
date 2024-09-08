@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Button as AntButton } from "antd";
 import Lottie from "react-lottie-player";
 
@@ -16,7 +16,7 @@ interface ButtonProps {
   zIndex?: number;
 }
 
-const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false, autoDisableOnclick = true, zIndex = 0 }) => {
+const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false, autoDisableOnclick = true, zIndex = 0 }, ref) => {
   const [animations, setAnimations] = useState<Array<{ id: number; isAnimating: boolean; rotation: number }>>([]);
 
   const handleButtonClick = () => {
@@ -96,13 +96,13 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
           )}
         </div>
       )}
-      <AntButton onClick={handleButtonClick} style={{ ...buttonStyle, zIndex: zIndex + 1 }} className="custom-button" disabled={autoDisableOnclick ? disabled : false}>
+      <AntButton ref={ref} onClick={handleButtonClick} style={{ ...buttonStyle, zIndex: zIndex + 1 }} className="custom-button" disabled={autoDisableOnclick ? disabled : false}>
         {iconLeft && React.cloneElement(iconLeft as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginRight: "8px" } })}
         {text}
         {iconRight && React.cloneElement(iconRight as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginLeft: "8px" } })}
       </AntButton>
     </div>
   );
-};
+});
 
 export default ButtonComponent;
