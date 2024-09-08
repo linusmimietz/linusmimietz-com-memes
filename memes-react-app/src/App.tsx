@@ -6,7 +6,7 @@ import ReactPlayer from "react-player";
 import ColorThief from "colorthief";
 import { hsla, parseToHsla } from "color2k";
 
-import { Meme, getMemes, likeMeme } from "./api";
+import { Meme, getMemes, likeMeme, MongodbAuthManager } from "./api";
 import ButtonComponent from "./ButtonComponent";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
@@ -25,7 +25,14 @@ function App() {
       const currentTime = new Date().getTime();
       const cacheAge = currentTime - parseInt(cachedTimestamp, 10);
       if (cacheAge < 24 * 60 * 60 * 1000) {
-        return JSON.parse(cachedMemes);
+        const parsedMemes = JSON.parse(cachedMemes);
+        const authManager = new MongodbAuthManager();
+        return parsedMemes.map((meme: any) => {
+          const newMeme = new Meme(meme.id, meme.url, meme.isVideo, meme.totalLikes, authManager);
+          newMeme.selfliked = meme.selfliked;
+          newMeme.myLikes = meme.myLikes;
+          return newMeme;
+        });
       }
       console.log("Meme cache expired");
     }
