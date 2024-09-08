@@ -150,8 +150,13 @@ export async function getMemes(): Promise<Meme[]> {
     const totalLikesData = await fetchLikesData(authManager);
     // console.log("Likes data fetched:", totalLikesData);
     const memes = await mergeData(memeFiles, totalLikesData);
-    // console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo}`).join("\n"));
-    return memes;
+    // console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo} | ID: ${meme.id}`).join("\n"));
+    const randomizedMemes = memes.sort((a, b) => {
+      if (a.id === "4037c0ffabf9332e329a3ec75ff958e8") return -1;
+      if (b.id === "4037c0ffabf9332e329a3ec75ff958e8") return 1;
+      return Math.random() - 0.5;
+    });
+    return randomizedMemes;
   } catch (error) {
     console.error("Error in getMemes:", error);
     return [];
