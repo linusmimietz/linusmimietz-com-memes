@@ -77,8 +77,8 @@ function App() {
                 ]}
               />
             ) : (
-              <div>
-                <div className="meme-container">
+              <div className="meme-container">
+                <div className="media-container">
                   {memes[currentMemeIndex].isVideo ? (
                     <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
                       <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
@@ -94,12 +94,15 @@ function App() {
                   )}
                 </div>
                 <div className="control-container">
-                  <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E6E6E6"} />
+                  <div className="progress-bar-container">
+                    <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E6E6E6"} />
+                  </div>
                   <div className="button-group">
                     <ButtonComponent
                       text="Back to Previous"
                       textColor="#000000"
                       backgroundColor="#DADADA"
+                      zIndex={1}
                       onClick={() => setCurrentMemeIndex(currentMemeIndex === 0 ? currentMemeIndex : (currentMemeIndex - 1 + memes.length) % memes.length)}
                       iconLeft={<BackIcon color="#000000" />}
                       disabled={currentMemeIndex === 0}
@@ -108,7 +111,7 @@ function App() {
                       text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : memes[currentMemeIndex].totalLikes === 1 ? "" : "s"}`}
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
-                      minWidth="114px"
+                      minWidth="124px"
                       onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
                       disabled={memes[currentMemeIndex].myLikes >= 50}
                       lottieAnimation={ConfettiAnimation}

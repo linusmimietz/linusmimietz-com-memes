@@ -12,9 +12,10 @@ interface ButtonProps {
   iconRight?: React.ReactNode;
   lottieAnimation?: object;
   disabled?: boolean;
+  zIndex?: number;
 }
 
-const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false }) => {
+const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false, zIndex = 0 }) => {
   const [animations, setAnimations] = useState<Array<{ id: number; isAnimating: boolean; rotation: number }>>([]);
 
   const handleButtonClick = () => {
@@ -62,7 +63,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
   };
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: "relative", display: "inline-block", zIndex }}>
       {lottieAnimation && (
         <div>
           {animations.map(
@@ -91,7 +92,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
           )}
         </div>
       )}
-      <AntButton onClick={handleButtonClick} style={buttonStyle} className="custom-button" disabled={disabled}>
+      <AntButton onClick={handleButtonClick} style={{ ...buttonStyle, zIndex: zIndex + 1 }} className="custom-button" disabled={disabled}>
         {iconLeft && React.cloneElement(iconLeft as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginRight: "8px" } })}
         {text}
         {iconRight && React.cloneElement(iconRight as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginLeft: "8px" } })}

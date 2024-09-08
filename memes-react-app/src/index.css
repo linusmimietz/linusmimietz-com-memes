@@ -11,7 +11,7 @@ body {
 }
 
 #root {
-  padding: 24px;
+  padding: 32px 0;
 }
 
 .container {
@@ -29,6 +29,13 @@ body {
 }
 
 .meme-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.media-container {
+  width: 100%;
   background: #e6e6e6;
 }
 
@@ -59,15 +66,35 @@ body {
 }
 
 .control-container {
-  display: flex;
-  justify-content: center;
+  display: inline-flex;
   flex-direction: column;
-  padding-top: 40px;
+  align-items: center;
+  padding-top: 24px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  z-index: 1;
 }
 
 .control-container .button-group {
   display: flex;
   justify-content: center;
+  width: 100%;
   gap: 16px;
-  padding-top: 32px;
+  padding-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .control-container {
+    width: 100%;
+  }
+  .control-container .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  .button-group div,
+  .button-group button {
+    width: 100%;
+  }
 }
