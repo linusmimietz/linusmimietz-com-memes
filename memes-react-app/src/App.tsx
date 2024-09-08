@@ -88,7 +88,7 @@ function App() {
                   ) : (
                     <div className="meme-image" style={{ backgroundColor: imageBackgroundColor || undefined }}>
                       <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1, width: "100%", height: "100%", objectFit: "contain" }} />
+                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1 }} />
                       </Spin>
                     </div>
                   )}
