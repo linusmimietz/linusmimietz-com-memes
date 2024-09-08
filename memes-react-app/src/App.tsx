@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, ConfigProvider, Progress, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
