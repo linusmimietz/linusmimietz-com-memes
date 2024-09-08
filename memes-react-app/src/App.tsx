@@ -106,6 +106,11 @@ function App() {
         if (memes.length > 0 && currentMemeIndex < memes.length) {
           handleLikeClick();
         }
+      } else if ((event.key === "r" || event.key === "R") && currentMemeIndex === memes.length) {
+        localStorage.removeItem("cachedMemes");
+        localStorage.removeItem("currentMemeIndex");
+        setMemes([]);
+        setCurrentMemeIndex(0);
       }
     };
 
@@ -114,6 +119,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMemeIndex, memes]);
 
   function imageOnLoad(event: any) {
