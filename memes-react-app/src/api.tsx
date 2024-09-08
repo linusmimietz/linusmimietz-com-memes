@@ -1,5 +1,5 @@
 import axios from "axios";
-const digitaloceanSpaceUrl: string = "https://linus-mimietz-com-memes.fra1.digitaloceanspaces.com";
+const digitaloceanSpaceUrl: string = "https://linus-mimietz-com-memes.fra1.cdn.digitaloceanspaces.com";
 
 interface IAuthManager {
   getAccessToken(): Promise<string>;
