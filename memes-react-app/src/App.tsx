@@ -11,6 +11,7 @@ import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
 import { SuccessIllustration } from "./assets/images/Success-Illustration";
 import ColorThief from "colorthief";
+import { parseToHsla, hsla } from "color2k";
 
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
@@ -41,8 +42,13 @@ function App() {
       const colorThief = new ColorThief();
       try {
         const color = colorThief.getColor(img);
-        if (color) setImageBackgroundColor(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.3)`);
-        console.log("Dominant color of the image: ", color);
+        if (color) {
+          const [r, g, b] = color;
+          const rgbColor = `rgb(${r},${g},${b})`;
+          const [h, s, , a] = parseToHsla(rgbColor);
+          const adjustedColor = hsla(h, s, 0.9, a); // Set lightness to 90%
+          setImageBackgroundColor(adjustedColor);
+        }
       } catch (error) {
         console.error("Error getting color from image: ", error);
       }
@@ -76,7 +82,7 @@ function App() {
               </div>
             ) : (
               <div className="content-container">
-                <div className="media-container">
+                <div className="media-container" style={{ backgroundColor: imageBackgroundColor || "#e6e6e6" }}>
                   {memes[currentMemeIndex].isVideo ? (
                     <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
                       <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
@@ -84,7 +90,7 @@ function App() {
                       </Spin>
                     </div>
                   ) : (
-                    <div className="meme-image" style={{ backgroundColor: imageBackgroundColor || undefined }}>
+                    <div className="meme-image">
                       <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
                         <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1 }} />
                       </Spin>

@@ -61,7 +61,7 @@ p {
 .media-container {
   flex: 1;
   min-height: 0;
-  background: #e6e6e6;
+  transition: background 0.1s;
 }
 
 .meme-image,
@@ -70,7 +70,6 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background 0.1s;
 }
 
 .meme-image *,
