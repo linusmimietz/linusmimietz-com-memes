@@ -5,21 +5,31 @@ interface IAuthManager {
   getAccessToken(): Promise<string>;
 }
 
+export interface MemeOptions {
+  url?: string;
+  isVideo?: boolean;
+  totalLikes?: number;
+  selfliked?: boolean;
+  myLikes?: number;
+}
+
 export class Meme {
   id: string;
   url: string;
   isVideo: boolean;
   totalLikes: number;
-  selfliked: boolean = false;
-  myLikes: number = 0;
+  selfliked: boolean;
+  myLikes: number;
   authManager: IAuthManager;
 
-  constructor(id: string, url: string = "", isVideo: boolean = false, totalLikes: number = 0, authManager: IAuthManager) {
+  constructor(id: string, authManager: IAuthManager, options: MemeOptions = {}) {
     this.id = id;
-    this.url = url;
-    this.isVideo = isVideo;
-    this.totalLikes = totalLikes;
     this.authManager = authManager;
+    this.url = options.url ?? "";
+    this.isVideo = options.isVideo ?? false;
+    this.totalLikes = options.totalLikes ?? 0;
+    this.selfliked = options.selfliked ?? false;
+    this.myLikes = options.myLikes ?? 0;
   }
 }
 
@@ -91,7 +101,12 @@ async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]>
     if (key.match(/.(mp4|webm|ogg|avi|wmv|flv|mov|3gp)$/i)) {
       isVideo = true;
     }
-    memes.push(new Meme(fileId, fileUrl, isVideo, undefined, authManager));
+    memes.push(
+      new Meme(fileId, authManager, {
+        url: fileUrl,
+        isVideo: isVideo,
+      })
+    );
   });
   return memes;
 }
@@ -116,7 +131,7 @@ async function fetchLikesData(authManager: MongodbAuthManager, retries = 3): Pro
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, undefined, undefined, item.likes, authManager));
+    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, authManager, { totalLikes: item.likes }));
   } catch (error) {
     if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
       authManager.token = "";

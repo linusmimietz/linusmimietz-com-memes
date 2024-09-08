@@ -28,9 +28,7 @@ function App() {
         const parsedMemes = JSON.parse(cachedMemes);
         const authManager = new MongodbAuthManager();
         return parsedMemes.map((meme: any) => {
-          const newMeme = new Meme(meme.id, meme.url, meme.isVideo, meme.totalLikes, authManager);
-          newMeme.selfliked = meme.selfliked;
-          newMeme.myLikes = meme.myLikes;
+          const newMeme = new Meme(meme.id, authManager, meme);
           return newMeme;
         });
       }
@@ -43,6 +41,7 @@ function App() {
   const [currentMemeIndex, setCurrentMemeIndex] = useState(() => {
     const cachedIndex = localStorage.getItem("currentMemeIndex");
     var index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
+    if (memes.length === 0) return index;
     if (memes[index].isVideo) {
       for (let i = index - 1; i < memes.length; i--) {
         if (!memes[i].isVideo) {
