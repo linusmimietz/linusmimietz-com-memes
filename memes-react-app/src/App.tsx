@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./assets/fonts/fontfaces.css";
-import { Button, Progress, Spin, Alert, Result, ConfigProvider } from "antd";
+import { Progress, Spin, Alert, ConfigProvider } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { Meme, getMemes, likeMeme } from "./api";
@@ -9,6 +9,7 @@ import ButtonComponent from "./ButtonComponent";
 import ConfettiAnimation from "./assets/animations/confetti-1.json";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
+import { SuccessIllustration } from "./assets/images/Success-Illustration";
 import ColorThief from "colorthief";
 
 function App() {
@@ -63,19 +64,16 @@ function App() {
         {memes.length > 0 && (
           <>
             {currentMemeIndex === memes.length ? (
-              <Result
-                status="success"
-                title="You've reached the end"
-                subTitle={`In total you've viewed ${memes.length} memes and awarded ${myTotalLikes} like${myTotalLikes === 1 ? "" : "s"}. Got any more awesome memes to share? Contact me!`}
-                extra={[
-                  <Button type="primary" key="restart" onClick={() => setCurrentMemeIndex(0)}>
-                    Restart
-                  </Button>,
-                  <Button key="reload" onClick={() => window.open("https://www.linkedin.com/in/linusmimietz/", "_blank")}>
-                    Message via LinkedIn
-                  </Button>,
-                ]}
-              />
+              <div className="success-container">
+                <SuccessIllustration color="#23C65F" width="148" height="148" />
+                <div className="success-message">
+                  <h1>You've reached the end</h1>
+                  <p style={{ color: "rgba(0, 0, 0, 0.6)" }}>
+                    In total you viewed {memes.length} memes and awarded {myTotalLikes} like{myTotalLikes === 1 ? "" : "s"}.
+                  </p>
+                </div>
+                <ButtonComponent text="Restart" textColor="#000000" backgroundColor="#DADADA" onClick={() => setCurrentMemeIndex(0)} />
+              </div>
             ) : (
               <div className="content-container">
                 <div className="media-container">
@@ -111,7 +109,7 @@ function App() {
                       text={`${memes[currentMemeIndex].totalLikes} Like${memes[currentMemeIndex].selfliked ? "d" : memes[currentMemeIndex].totalLikes === 1 ? "" : "s"}`}
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
-                      minWidth="124px"
+                      minWidth="126px"
                       onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
                       disabled={memes[currentMemeIndex].myLikes >= 50}
                       lottieAnimation={ConfettiAnimation}

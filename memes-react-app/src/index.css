@@ -1,6 +1,9 @@
 .plyr {
   --plyr-color-main: #1777ff;
 }
+#root {
+  padding: 32px 0;
+}
 
 html,
 body {
@@ -8,10 +11,26 @@ body {
   margin: 0;
   background: #f2f2f2;
   font-family: "Sequel Sans Body";
+  font-size: 18px;
 }
 
-#root {
-  padding: 32px 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Sequel Sans Semi Head";
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
 }
 
 .container {
@@ -93,6 +112,26 @@ body {
   width: 100%;
   gap: 16px;
   padding-top: 24px;
+}
+
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.success-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  text-align: center;
+  line-height: 180%;
 }
 
 @media (max-width: 700px) {
