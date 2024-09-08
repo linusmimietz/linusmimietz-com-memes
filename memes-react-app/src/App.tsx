@@ -22,6 +22,7 @@ function App() {
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
   const [showMaxLikesAlert, setShowMaxLikesAlert] = useState(false);
+  const [alertTimeoutId, setAlertTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
@@ -31,6 +32,10 @@ function App() {
     setImageLoading(true);
     setVideoLoading(true);
     setShowMaxLikesAlert(false);
+    if (alertTimeoutId) {
+      clearTimeout(alertTimeoutId);
+      setAlertTimeoutId(null);
+    }
     if (memes[currentMemeIndex] && memes[currentMemeIndex].isVideo) {
       setImageBackgroundColor("");
     }
@@ -56,6 +61,21 @@ function App() {
       }
     }
   }
+
+  const handleLikeClick = () => {
+    if (memes[currentMemeIndex].myLikes >= 50) {
+      if (!alertTimeoutId) {
+        setShowMaxLikesAlert(true);
+        const timeoutId = setTimeout(() => {
+          setShowMaxLikesAlert(false);
+          setAlertTimeoutId(null);
+        }, 5000);
+        setAlertTimeoutId(timeoutId);
+      }
+    } else {
+      likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex);
+    }
+  };
 
   return (
     <ConfigProvider
@@ -118,14 +138,7 @@ function App() {
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
                       minWidth="126px"
-                      onClick={() => {
-                        if (memes[currentMemeIndex].myLikes >= 50) {
-                          setShowMaxLikesAlert(true);
-                          setTimeout(() => setShowMaxLikesAlert(false), 5000);
-                        } else {
-                          likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex);
-                        }
-                      }}
+                      onClick={handleLikeClick}
                       disabled={memes[currentMemeIndex].myLikes >= 50}
                       autoDisableOnclick={false}
                       lottieAnimation={ConfettiAnimation}
@@ -134,7 +147,7 @@ function App() {
                   </div>
                   {showMaxLikesAlert && (
                     <Alert
-                      message="You've already given 50 likes"
+                      message="You've reached the limit of 50 likes"
                       type="error"
                       showIcon
                       style={{
