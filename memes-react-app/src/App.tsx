@@ -30,6 +30,7 @@ function App() {
   useEffect(() => {
     setImageLoading(true);
     setVideoLoading(true);
+    setShowMaxLikesAlert(false);
     if (memes[currentMemeIndex] && memes[currentMemeIndex].isVideo) {
       setImageBackgroundColor("");
     }
@@ -119,7 +120,6 @@ function App() {
                       minWidth="126px"
                       onClick={() => {
                         if (memes[currentMemeIndex].myLikes >= 50) {
-                          console.log("max likes");
                           setShowMaxLikesAlert(true);
                           setTimeout(() => setShowMaxLikesAlert(false), 5000);
                         } else {
