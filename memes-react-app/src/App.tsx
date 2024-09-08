@@ -96,15 +96,9 @@ function App() {
         setAlertTimeoutId(timeoutId);
       }
     } else {
-      likeMeme(
-        memes[currentMemeIndex],
-        (updatedMemes) => {
-          setMemes(updatedMemes);
-          localStorage.setItem("cachedMemes", JSON.stringify(updatedMemes));
-        },
-        memes,
-        currentMemeIndex
-      );
+      likeMeme(memes, currentMemeIndex);
+      const updatedMemes = memes.map((m, idx) => (idx === currentMemeIndex ? { ...m, totalLikes: m.totalLikes + 1, selfliked: true, myLikes: m.myLikes + 1 } : m));
+      setMemes(updatedMemes);
     }
   };
 

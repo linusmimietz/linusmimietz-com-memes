@@ -45,12 +45,10 @@ export class MongodbAuthManager implements IAuthManager {
   }
 }
 
-export const likeMeme = async (meme: Meme, setMemes: (memes: Meme[]) => void, memes: Meme[], index: number): Promise<void> => {
-  if (meme.myLikes >= 50) {
-    return;
-  }
-  const updatedMemes = memes.map((m, idx) => (idx === index ? { ...m, totalLikes: m.totalLikes + 1, selfliked: true, myLikes: m.myLikes + 1 } : m));
-  setMemes(updatedMemes);
+export const likeMeme = async (memes: Meme[], index: number): Promise<void> => {
+  if (index < 0 || index >= memes.length) return;
+  if (memes[index].myLikes >= 50) return;
+  const meme = memes[index];
   let token;
   try {
     token = await meme.authManager.getAccessToken();
