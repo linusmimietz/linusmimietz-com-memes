@@ -12,15 +12,19 @@ interface ButtonProps {
   iconRight?: React.ReactNode;
   lottieAnimation?: object;
   disabled?: boolean;
+  autoDisableOnclick?: boolean;
   zIndex?: number;
 }
 
-const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false, zIndex = 0 }) => {
+const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundColor, minWidth = "auto", onClick, iconLeft, iconRight, lottieAnimation, disabled = false, autoDisableOnclick = true, zIndex = 0 }) => {
   const [animations, setAnimations] = useState<Array<{ id: number; isAnimating: boolean; rotation: number }>>([]);
 
   const handleButtonClick = () => {
+    if (autoDisableOnclick && disabled) {
+      return;
+    }
+    onClick();
     if (!disabled) {
-      onClick();
       const newRotation = animations.length === 0 ? 0 : Math.random() * 360;
       setAnimations((prev) => [...prev, { id: Date.now(), isAnimating: true, rotation: newRotation }]);
     }
@@ -92,7 +96,7 @@ const ButtonComponent: React.FC<ButtonProps> = ({ text, textColor, backgroundCol
           )}
         </div>
       )}
-      <AntButton onClick={handleButtonClick} style={{ ...buttonStyle, zIndex: zIndex + 1 }} className="custom-button" disabled={disabled}>
+      <AntButton onClick={handleButtonClick} style={{ ...buttonStyle, zIndex: zIndex + 1 }} className="custom-button" disabled={autoDisableOnclick ? disabled : false}>
         {iconLeft && React.cloneElement(iconLeft as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginRight: "8px" } })}
         {text}
         {iconRight && React.cloneElement(iconRight as React.ReactElement, { color: disabled ? darkenColor(backgroundColor, -0.3) : textColor, style: { width: "24px", height: "24px", marginLeft: "8px" } })}

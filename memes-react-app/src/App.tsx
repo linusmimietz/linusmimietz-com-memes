@@ -21,6 +21,7 @@ function App() {
   const [showVideoControls, setShowVideoControls] = useState(false);
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
+  const [showMaxLikesAlert, setShowMaxLikesAlert] = useState(false);
 
   useEffect(() => {
     getMemes().then((memes) => setMemes(memes));
@@ -116,12 +117,38 @@ function App() {
                       textColor={memes[currentMemeIndex].selfliked ? "#FFFFFF" : "#F52257"}
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
                       minWidth="126px"
-                      onClick={() => likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex)}
+                      onClick={() => {
+                        if (memes[currentMemeIndex].myLikes >= 50) {
+                          console.log("max likes");
+                          setShowMaxLikesAlert(true);
+                          setTimeout(() => setShowMaxLikesAlert(false), 5000);
+                        } else {
+                          likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex);
+                        }
+                      }}
                       disabled={memes[currentMemeIndex].myLikes >= 50}
+                      autoDisableOnclick={false}
                       lottieAnimation={ConfettiAnimation}
                     />
                     <ButtonComponent text="Next Random Meme" textColor="#FFFFFF" backgroundColor="#303030" onClick={() => setCurrentMemeIndex(currentMemeIndex + 1)} iconRight={<ShuffleIcon color="#FFFFFF" />} />
                   </div>
+                  {showMaxLikesAlert && (
+                    <Alert
+                      message="You've already given 50 likes"
+                      type="error"
+                      showIcon
+                      style={{
+                        position: "absolute",
+                        top: "18px",
+                        left: "50%",
+                        width: "max-content",
+                        transform: "translateX(-50%)",
+                        zIndex: 1000,
+                        opacity: showMaxLikesAlert ? 1 : 0,
+                        transition: "opacity 0.5s ease-in-out",
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             )}
