@@ -46,7 +46,7 @@ export class MongodbAuthManager implements IAuthManager {
       const { access_token } = response.data;
       this.token = access_token;
       this.expiry = Date.now() + 1800000; // 30 minutes in milliseconds for standard expiry
-      console.log("New token fetched:", this.token);
+      // console.log("New token fetched:", this.token);
       return this.token;
     } catch (error) {
       console.error("Error obtaining access token:", error);
