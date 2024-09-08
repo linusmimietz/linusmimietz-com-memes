@@ -27,6 +27,7 @@ function App() {
       if (cacheAge < 24 * 60 * 60 * 1000) {
         return JSON.parse(cachedMemes);
       }
+      console.log("Meme cache expired");
     }
     return [];
   });
