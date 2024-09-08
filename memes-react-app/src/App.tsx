@@ -34,7 +34,15 @@ function App() {
   const [videoLoading, setVideoLoading] = useState(false);
   const [currentMemeIndex, setCurrentMemeIndex] = useState(() => {
     const cachedIndex = localStorage.getItem("currentMemeIndex");
-    return cachedIndex ? parseInt(cachedIndex, 10) : 0;
+    var index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
+    if (memes[index].isVideo) {
+      for (let i = index - 1; i < memes.length; i--) {
+        if (!memes[i].isVideo) {
+          return i;
+        }
+      }
+    }
+    return index;
   });
   const [showVideoControls, setShowVideoControls] = useState(false);
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
