@@ -121,7 +121,7 @@ function App() {
                 </div>
                 <div className="control-container">
                   <div className="progress-bar-container">
-                    <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E6E6E6"} />
+                    <Progress percent={Math.round(((currentMemeIndex + 1) / memes.length) * 99)} status={"normal"} strokeColor={"#303030"} trailColor={"#E0E0E0"} />
                   </div>
                   <div className="button-group">
                     <ButtonComponent

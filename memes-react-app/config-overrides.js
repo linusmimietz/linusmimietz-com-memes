@@ -15,7 +15,7 @@ module.exports = function override(config, env) {
         plugins: [
           postcssPrefix({
             prefix: "#react-root-meme-app",
-            exclude: [":root", "body", "html"],
+            exclude: [":root", "body", "html", "#react-root-meme-app"],
           }),
         ],
       },
