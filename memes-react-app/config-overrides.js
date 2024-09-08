@@ -1,6 +1,13 @@
 const postcssPrefix = require("postcss-prefix-selector");
+const webpackConfig = require("./webpack.config");
 
 module.exports = function override(config, env) {
+  // Merge the custom webpack config
+  config.output = {
+    ...config.output,
+    ...webpackConfig.output,
+  };
+
   // Find the CSS rule
   const cssRule = config.module.rules.find((rule) => rule.oneOf && rule.oneOf.find((r) => r.test && r.test.toString().includes(".css")));
 

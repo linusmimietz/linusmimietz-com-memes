@@ -3,7 +3,7 @@
   padding: 0;
   margin: 0;
   background: #f2f2f2;
-  font-family: "Sequel Sans Body", sans-serif;
+  font-family: "Sequel Sans Body";
   font-size: 18px;
 }
 
@@ -13,7 +13,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Sequel Sans Semi Head", sans-serif;
+  font-family: "Sequel Sans Head";
+  color: #000c;
 }
 
 h1,
@@ -24,6 +25,10 @@ h5,
 h6,
 p {
   margin: 0;
+}
+
+h1 {
+  font-size: 36px;
 }
 
 .plyr {
@@ -43,7 +48,7 @@ p {
 }
 
 .custom-button {
-  font-family: "Sequel Sans Semi Head", sans-serif;
+  font-family: "Sequel Sans Head";
 }
 
 .custom-button:not(:disabled):hover {
