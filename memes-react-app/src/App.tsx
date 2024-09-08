@@ -18,10 +18,16 @@ import "./animation.css";
 import "./assets/fonts/fontfaces.css";
 
 function App() {
-  const [memes, setMemes] = useState<Meme[]>([]);
+  const [memes, setMemes] = useState<Meme[]>(() => {
+    const cachedMemes = localStorage.getItem("cachedMemes");
+    return cachedMemes ? JSON.parse(cachedMemes) : [];
+  });
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
-  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  const [currentMemeIndex, setCurrentMemeIndex] = useState(() => {
+    const cachedIndex = localStorage.getItem("currentMemeIndex");
+    return cachedIndex ? parseInt(cachedIndex, 10) : 0;
+  });
   const [showVideoControls, setShowVideoControls] = useState(false);
   const [imageBackgroundColor, setImageBackgroundColor] = useState("");
   const myTotalLikes = memes.reduce((acc, meme) => acc + meme.myLikes, 0);
@@ -29,8 +35,21 @@ function App() {
   const [alertTimeoutId, setAlertTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    getMemes().then((memes) => setMemes(memes));
-  }, []);
+    if (memes.length === 0) {
+      getMemes().then((fetchedMemes) => {
+        setMemes(fetchedMemes);
+        localStorage.setItem("cachedMemes", JSON.stringify(fetchedMemes));
+      });
+    }
+  }, [memes.length]);
+
+  useEffect(() => {
+    localStorage.setItem("cachedMemes", JSON.stringify(memes));
+  }, [memes]);
+
+  useEffect(() => {
+    localStorage.setItem("currentMemeIndex", currentMemeIndex.toString());
+  }, [currentMemeIndex]);
 
   useEffect(() => {
     setImageLoading(true);
@@ -77,7 +96,15 @@ function App() {
         setAlertTimeoutId(timeoutId);
       }
     } else {
-      likeMeme(memes[currentMemeIndex], setMemes, memes, currentMemeIndex);
+      likeMeme(
+        memes[currentMemeIndex],
+        (updatedMemes) => {
+          setMemes(updatedMemes);
+          localStorage.setItem("cachedMemes", JSON.stringify(updatedMemes));
+        },
+        memes,
+        currentMemeIndex
+      );
     }
   };
 
@@ -104,7 +131,17 @@ function App() {
                     In total you viewed {memes.length} memes and awarded {myTotalLikes} like{myTotalLikes === 1 ? "" : "s"}.
                   </p>
                 </div>
-                <ButtonComponent text="Restart" textColor="#000000" backgroundColor="#DADADA" onClick={() => setCurrentMemeIndex(0)} />
+                <ButtonComponent
+                  text="Restart"
+                  textColor="#000000"
+                  backgroundColor="#DADADA"
+                  onClick={() => {
+                    localStorage.removeItem("cachedMemes");
+                    localStorage.removeItem("currentMemeIndex");
+                    setMemes([]);
+                    setCurrentMemeIndex(0);
+                  }}
+                />
               </div>
             ) : (
               <div className="content-container">
