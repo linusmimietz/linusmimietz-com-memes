@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
-import "./assets/fonts/fontfaces.css";
-import { Progress, Spin, Alert, ConfigProvider } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { Alert, ConfigProvider, Progress, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import ReactPlayer from "react-player";
+import ColorThief from "colorthief";
+import { hsla, parseToHsla } from "color2k";
+
 import { Meme, getMemes, likeMeme } from "./api";
 import ButtonComponent from "./ButtonComponent";
-import ConfettiAnimation from "./assets/animations/confetti-1.json";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
 import { SuccessIllustration } from "./assets/images/Success-Illustration";
-import ColorThief from "colorthief";
-import { parseToHsla, hsla } from "color2k";
+import ConfettiAnimation from "./assets/animations/confetti-1.json";
+
+import "./App.css";
+import "./animation.css";
+import "./assets/fonts/fontfaces.css";
 
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
@@ -105,19 +109,25 @@ function App() {
             ) : (
               <div className="content-container">
                 <div className="media-container" style={{ backgroundColor: imageBackgroundColor || "#e6e6e6" }}>
-                  {memes[currentMemeIndex].isVideo ? (
-                    <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
-                      <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                        <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={showVideoControls} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" onStart={() => setVideoLoading(false)} style={{ opacity: videoLoading ? 0 : 1 }} />
-                      </Spin>
-                    </div>
-                  ) : (
-                    <div className="meme-image">
-                      <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                        <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1 }} />
-                      </Spin>
-                    </div>
-                  )}
+                  <TransitionGroup className="transition-group">
+                    <CSSTransition key={currentMemeIndex} timeout={50} classNames="fade">
+                      <div className="meme-content">
+                        {memes[currentMemeIndex].isVideo ? (
+                          <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
+                            <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                              <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={showVideoControls} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" onStart={() => setVideoLoading(false)} style={{ opacity: videoLoading ? 0 : 1 }} />
+                            </Spin>
+                          </div>
+                        ) : (
+                          <div className="meme-image">
+                            <Spin spinning={imageLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
+                              <img src={memes[currentMemeIndex].url} alt="meme" crossOrigin="anonymous" onLoad={imageOnLoad} style={{ opacity: imageLoading ? 0 : 1 }} />
+                            </Spin>
+                          </div>
+                        )}
+                      </div>
+                    </CSSTransition>
+                  </TransitionGroup>
                 </div>
                 <div className="control-container">
                   <div className="progress-bar-container">

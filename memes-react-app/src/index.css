@@ -57,7 +57,17 @@ p {
 .media-container {
   flex: 1;
   min-height: 0;
-  transition: background 0.1s;
+  transition: background 100ms;
+  position: relative;
+}
+
+.transition-group,
+.meme-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .meme-image,
@@ -78,7 +88,7 @@ p {
 .meme-image img,
 .react-player {
   object-fit: contain;
-  transition: opacity 0.1s;
+  transition: opacity 50ms;
   width: 100%;
   height: 100%;
 }
