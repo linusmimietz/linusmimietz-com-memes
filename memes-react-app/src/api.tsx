@@ -32,7 +32,7 @@ export const likeMeme = async (memes: Meme[], index: number): Promise<void> => {
   if (memes[index].myLikes >= 50) return;
   const meme = memes[index];
   try {
-    const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
+    const response = await fetch("https://flask-backend-production-8bf1.up.railway.app/increment_one", {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",
@@ -82,7 +82,7 @@ async function parseXML(xml: string): Promise<Meme[]> {
 
 async function fetchLikesData(): Promise<Meme[]> {
   try {
-    const response = await axios.get("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/get_all");
+    const response = await axios.get("https://flask-backend-production-8bf1.up.railway.app/get_all");
     return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, { totalLikes: item.likes }));
   } catch (error) {
     console.error("Error fetching totalLikes data:", error);
