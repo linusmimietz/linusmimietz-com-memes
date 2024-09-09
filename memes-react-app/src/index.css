@@ -148,6 +148,9 @@ h1 {
 }
 
 @media (max-width: 700px) {
+  .container {
+    height: calc(100vh);
+  }
   .control-container {
     width: 100%;
   }

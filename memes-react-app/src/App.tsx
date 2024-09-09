@@ -210,7 +210,18 @@ function App() {
                         {memes[currentMemeIndex].isVideo ? (
                           <div className="meme-video" onMouseEnter={() => setShowVideoControls(true)} onMouseLeave={() => setShowVideoControls(false)}>
                             <Spin spinning={videoLoading} indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} delay={500}>
-                              <ReactPlayer className="react-player" url={memes[currentMemeIndex].url} loop={true} controls={showVideoControls} playing={memes[currentMemeIndex].isVideo} width="100%" height="100%" onStart={() => setVideoLoading(false)} style={{ opacity: videoLoading ? 0 : 1 }} />
+                              <ReactPlayer
+                                className="react-player"
+                                url={memes[currentMemeIndex].url}
+                                loop={true}
+                                playsinline={true}
+                                controls={showVideoControls}
+                                playing={memes[currentMemeIndex].isVideo}
+                                width="100%"
+                                height="100%"
+                                onStart={() => setVideoLoading(false)}
+                                style={{ opacity: videoLoading ? 0 : 1 }}
+                              />
                             </Spin>
                           </div>
                         ) : (
