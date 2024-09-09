@@ -1,8 +1,6 @@
-Here's the README for the project:
-
 # Memes React App
 
-This project is a React-based web application for viewing and liking memes. It uses MongoDB for database plus serverless backend and DigitalOcean Spaces for hosting meme images and videos.
+This project is a React-based web application for viewing and liking memes. It uses MySQL for the database, a Flask backend hosted on Railway, and DigitalOcean Spaces for hosting meme images and videos.
 
 ## Features
 
@@ -21,41 +19,39 @@ This project is a React-based web application for viewing and liking memes. It u
 - React
 - TypeScript
 - Ant Design
-- MongoDB
+- MySQL
+- Flask
+- Railway
 - DigitalOcean Spaces
 
-## MongoDB Database & Serverless Backend
+## MySQL Database & Flask Backend
 
-For this project, MongoDB is used to store and retrieve like counts for memes. The application interacts with MongoDB through two main endpoints:
+For this project, MySQL is used to store and retrieve like counts for memes. The application interacts with the MySQL database through a Flask backend hosted on Railway. The backend provides two main endpoints:
 
-1. Get All: Retrieves all documents from the "Likes" collection.
+1. Get All: Retrieves all documents from the "likes" table.
 2. Increment One: Increments the like count for a specific meme.
 
-These endpoints are implemented as MongoDB Atlas Functions, which allow serverless execution of database operations. The functions can be found in the `mongodb` folder.
+The Flask backend code can be found in the `memes-flask-backend` folder.
 
-Structure of databade:
+Structure of database:
 
-The MongoDB database for this project has a simple structure:
+The MySQL database for this project has a simple structure:
 
-- Database: "memes"
-  - Collection: "Likes"
-    - Documents:
-      {
-      "\_id": String,
-      "likes": Number
-      }
+- Table: `likes`
+  - `_id` (VARCHAR(32), PRIMARY KEY): The unique identifier of the meme
+  - `likes` (INT): The number of likes for the meme
 
-Each document in the "Likes" collection represents a meme and its associated like count. The "\_id" field corresponds to the ETag from the DigitalOcean Spaces list SML (Simple Storage List), which uniquely identifies each meme object in the storage. The "likes" field stores the number of likes for that meme.
+Each row in the "likes" table represents a meme and its associated like count. The "\_id" field corresponds to the ETag from the DigitalOcean Spaces list XML (Simple Storage List), which uniquely identifies each meme object in the storage. The "likes" field stores the number of likes for that meme.
 
 ## Key Components
 
 1. `App.tsx`: Main application component
-2. `api.tsx`: API functions for interacting with MongoDB and fetching memes
+2. `api.tsx`: API functions for interacting with the Flask backend and fetching memes
 3. `ButtonComponent.tsx`: Reusable button component with animation support
 
 ## Key Libraries Used
 
-1. `axios`: Used for making HTTP requests to the MongoDB and DigitalOcean Spaces APIs
+1. `axios`: Used for making HTTP requests to the Flask backend and DigitalOcean Spaces APIs
 2. `color2k`: Used for converting color shades to a specific brightness
 3. `colorthief`: Used for extracting color information from images
 4. `react-lottie-player`: Used for playing animated memes
@@ -94,10 +90,10 @@ Each document in the "Likes" collection represents a meme and its associated lik
    - In your Webflow project, update the filenames of the JS and CSS files where the app is imported
    - The new filenames can be found in the `build` folder after running `npm run build`
 
-   ```
+   ```html
    <div id="react-root-meme-app"></div>
    <script src="https://linus-mimietz-com-memes-react.fra1.cdn.digitaloceanspaces.com/static/js/main.9636209d.js"></script>
-   <link rel="stylesheet" type="text/css" href="https://linus-mimietz-com-memes-react.fra1.cdn.digitaloceanspaces.com/static/css/main.71e6b16b.css">
+   <link rel="stylesheet" type="text/css" href="https://linus-mimietz-com-memes-react.fra1.cdn.digitaloceanspaces.com/static/css/main.71e6b16b.css" />
    ```
 
 ## Configuration
