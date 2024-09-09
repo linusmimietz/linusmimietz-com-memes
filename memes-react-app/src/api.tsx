@@ -1,10 +1,6 @@
 import axios from "axios";
 const digitaloceanSpaceUrl: string = "https://linus-mimietz-com-memes.fra1.cdn.digitaloceanspaces.com";
 
-interface IAuthManager {
-  getAccessToken(): Promise<string>;
-}
-
 export interface MemeOptions {
   url?: string;
   isVideo?: boolean;
@@ -20,11 +16,9 @@ export class Meme {
   totalLikes: number;
   selfliked: boolean;
   myLikes: number;
-  authManager: IAuthManager;
 
-  constructor(id: string, authManager: IAuthManager, options: MemeOptions = {}) {
+  constructor(id: string, options: MemeOptions = {}) {
     this.id = id;
-    this.authManager = authManager;
     this.url = options.url ?? "";
     this.isVideo = options.isVideo ?? false;
     this.totalLikes = options.totalLikes ?? 0;
@@ -33,40 +27,15 @@ export class Meme {
   }
 }
 
-export class MongodbAuthManager implements IAuthManager {
-  token: string = "";
-  expiry: number = Date.now();
-
-  async getAccessToken(): Promise<string> {
-    if (this.token && Date.now() < this.expiry) {
-      return this.token;
-    }
-    try {
-      const response = await axios.post("https://eu-central-1.aws.services.cloud.mongodb.com/api/client/v2.0/app/data-zgorjkq/auth/providers/anon-user/login");
-      const { access_token } = response.data;
-      this.token = access_token;
-      this.expiry = Date.now() + 1800000; // 30 minutes in milliseconds for standard expiry
-      // console.log("New token fetched:", this.token);
-      return this.token;
-    } catch (error) {
-      console.error("Error obtaining access token:", error);
-      throw error;
-    }
-  }
-}
-
 export const likeMeme = async (memes: Meme[], index: number): Promise<void> => {
   if (index < 0 || index >= memes.length) return;
   if (memes[index].myLikes >= 50) return;
   const meme = memes[index];
-  let token;
   try {
-    token = await meme.authManager.getAccessToken();
     const response = await fetch("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/increment_one", {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",
-        Authorization: `Bearer ${token}`,
       },
       body: meme.id,
     });
@@ -88,7 +57,7 @@ async function fetchXML(url: string): Promise<string> {
   }
 }
 
-async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]> {
+async function parseXML(xml: string): Promise<Meme[]> {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xml, "text/xml");
   const files = xmlDoc.getElementsByTagName("Contents");
@@ -102,7 +71,7 @@ async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]>
       isVideo = true;
     }
     memes.push(
-      new Meme(fileId, authManager, {
+      new Meme(fileId, {
         url: fileUrl,
         isVideo: isVideo,
       })
@@ -111,33 +80,11 @@ async function parseXML(xml: string, authManager: IAuthManager): Promise<Meme[]>
   return memes;
 }
 
-async function fetchLikesData(authManager: MongodbAuthManager, retries = 3): Promise<Meme[]> {
-  if (retries <= 0) {
-    console.error("Maximum auth retry attempts exceeded");
-    return [];
-  }
-
-  let token: string;
+async function fetchLikesData(): Promise<Meme[]> {
   try {
-    token = await authManager.getAccessToken();
+    const response = await axios.get("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/get_all");
+    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, { totalLikes: item.likes }));
   } catch (error) {
-    console.error("Failed to get access token:", error);
-    return [];
-  }
-
-  try {
-    const response = await axios.get("https://eu-central-1.aws.data.mongodb-api.com/app/data-zgorjkq/endpoint/get_all", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data.result.map((item: { _id: string; likes: number }) => new Meme(item._id, authManager, { totalLikes: item.likes }));
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response && error.response.status === 401) {
-      authManager.token = "";
-      console.error("Unauthorized; attempting retry with new token");
-      return fetchLikesData(authManager, retries - 1);
-    }
     console.error("Error fetching totalLikes data:", error);
     return [];
   }
@@ -154,13 +101,12 @@ async function mergeData(fileMemes: Meme[], totalLikesData: Meme[]): Promise<Mem
 }
 
 export async function getMemes(): Promise<Meme[]> {
-  const authManager = new MongodbAuthManager();
   try {
     const xmlData = await fetchXML(`${digitaloceanSpaceUrl}?list-type=2`);
     // console.log("XML data fetched:", xmlData);
-    const memeFiles = await parseXML(xmlData, authManager);
+    const memeFiles = await parseXML(xmlData);
     // console.log("Meme files parsed:", memeFiles);
-    const totalLikesData = await fetchLikesData(authManager);
+    const totalLikesData = await fetchLikesData();
     // console.log("Likes data fetched:", totalLikesData);
     const memes = await mergeData(memeFiles, totalLikesData);
     // console.log("Merged data:", memes.map((meme) => `Meme: ${meme.url} | Likes: ${meme.totalLikes} | isVideo: ${meme.isVideo} | ID: ${meme.id}`).join("\n"));

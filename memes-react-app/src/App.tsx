@@ -6,7 +6,7 @@ import ReactPlayer from "react-player";
 import ColorThief from "colorthief";
 import { hsla, parseToHsla } from "color2k";
 
-import { Meme, getMemes, likeMeme, MongodbAuthManager } from "./api";
+import { Meme, getMemes, likeMeme } from "./api";
 import ButtonComponent from "./ButtonComponent";
 import { BackIcon } from "./assets/images/Back";
 import { ShuffleIcon } from "./assets/images/Shuffle";
@@ -26,12 +26,7 @@ function App() {
       const currentTime = new Date().getTime();
       const cacheAge = currentTime - parseInt(cachedTimestamp, 10);
       if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
-        const parsedMemes = JSON.parse(cachedMemes);
-        const authManager = new MongodbAuthManager();
-        var newMemes = parsedMemes.map((meme: any) => {
-          const newMeme = new Meme(meme.id, authManager, meme);
-          return newMeme;
-        });
+        const newMemes = JSON.parse(cachedMemes);
         // we initiate index here because now the memes are loaded from local storage
         const cachedIndex = localStorage.getItem("currentMemeIndex");
         let initialIndex = cachedIndex ? parseInt(cachedIndex, 10) : 0;
