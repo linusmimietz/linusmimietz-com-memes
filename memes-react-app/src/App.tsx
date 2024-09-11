@@ -98,7 +98,7 @@ function App() {
         if (memes.length > 0 && currentMemeIndex > 0 && currentMemeIndex < memes.length) {
           setCurrentMemeIndex(currentMemeIndex - 1);
         }
-      } else if (event.key === "l" || event.key === "L" || event.key === "ArrowUp") {
+      } else if (event.key === "l" || event.key === "L") {
         if (memes.length > 0 && currentMemeIndex < memes.length) {
           triggerLikeButtonClick();
         }
