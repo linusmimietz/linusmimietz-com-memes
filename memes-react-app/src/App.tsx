@@ -19,34 +19,7 @@ import "./assets/fonts/fontfaces.css";
 
 function App() {
   const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
-  const [memes, setMemes] = useState<Meme[]>(() => {
-    const cachedMemes = localStorage.getItem("cachedMemes");
-    const cachedTimestamp = localStorage.getItem("cachedTimestamp");
-    if (cachedMemes && cachedTimestamp) {
-      const currentTime = new Date().getTime();
-      const cacheAge = currentTime - parseInt(cachedTimestamp, 10);
-      if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
-        const newMemes = JSON.parse(cachedMemes);
-        // we initiate index here because now the memes are loaded from local storage
-        const cachedIndex = localStorage.getItem("currentMemeIndex");
-        let initialIndex = cachedIndex ? parseInt(cachedIndex, 10) : 0;
-        if (initialIndex < newMemes.length) {
-          for (let i = initialIndex; i >= 0; i--) {
-            if (!newMemes[i].isVideo) {
-              initialIndex = i;
-              break;
-            }
-          }
-        } else {
-          initialIndex = newMemes.length;
-        }
-        setCurrentMemeIndex(initialIndex);
-        return newMemes;
-      }
-      console.log("Meme cache expired");
-    }
-    return [];
-  });
+  const [memes, setMemes] = useState<Meme[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
   const [showVideoControls, setShowVideoControls] = useState(false);
@@ -57,17 +30,48 @@ function App() {
   const likeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (memes.length === 0) {
-      getMemes().then((fetchedMemes) => {
-        setMemes(fetchedMemes);
-        localStorage.setItem("cachedMemes", JSON.stringify(fetchedMemes));
-        localStorage.setItem("cachedTimestamp", new Date().getTime().toString());
-      });
-    }
-  }, [memes.length]);
+    const initializeMemes = async () => {
+      const cachedMemes = localStorage.getItem("cachedMemes");
+      if (cachedMemes) {
+        const cachedMemesData = JSON.parse(cachedMemes);
+        const fetchedMemes = await getMemes();
+        const mergedMemes = fetchedMemes.map((fetchedMeme) => {
+          const cachedMeme = cachedMemesData.find((meme: Meme) => meme.id === fetchedMeme.id);
+          if (cachedMeme) {
+            return {
+              ...fetchedMeme,
+              selfliked: cachedMeme.selfliked,
+              myLikes: cachedMeme.myLikes,
+            };
+          }
+          return fetchedMeme;
+        });
+        // we initiate index here because now the memes are loaded from local storage
+        const cachedIndex = localStorage.getItem("currentMemeIndex");
+        let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
+        if (index < mergedMemes.length) {
+          for (let i = index; i >= 0; i--) {
+            if (!mergedMemes[i].isVideo) {
+              index = i;
+              break;
+            }
+          }
+        } else {
+          index = mergedMemes.length;
+        }
+        setCurrentMemeIndex(index);
+        setMemes(mergedMemes);
+      } else {
+        setMemes(await getMemes());
+      }
+    };
+    initializeMemes();
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("cachedMemes", JSON.stringify(memes));
+    if (memes.length > 0) {
+      localStorage.setItem("cachedMemes", JSON.stringify(memes));
+    }
   }, [memes]);
 
   useEffect(() => {
@@ -103,10 +107,7 @@ function App() {
           triggerLikeButtonClick();
         }
       } else if ((event.key === "r" || event.key === "R") && currentMemeIndex === memes.length) {
-        localStorage.removeItem("cachedMemes");
-        localStorage.removeItem("currentMemeIndex");
-        setMemes([]);
-        setCurrentMemeIndex(0);
+        resetApp();
       }
     };
 
@@ -117,6 +118,13 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMemeIndex, memes]);
+
+  function resetApp() {
+    localStorage.removeItem("cachedMemes");
+    localStorage.removeItem("currentMemeIndex");
+    setMemes([]);
+    setCurrentMemeIndex(0);
+  }
 
   function imageOnLoad(event: any) {
     setImageLoading(false);
@@ -184,17 +192,7 @@ function App() {
                     In total you viewed {memes.length} memes and awarded {myTotalLikes} like{myTotalLikes === 1 ? "" : "s"}.
                   </p>
                 </div>
-                <ButtonComponent
-                  text="Restart"
-                  textColor="#000000"
-                  backgroundColor="#DADADA"
-                  onClick={() => {
-                    localStorage.removeItem("cachedMemes");
-                    localStorage.removeItem("currentMemeIndex");
-                    setMemes([]);
-                    setCurrentMemeIndex(0);
-                  }}
-                />
+                <ButtonComponent text="Restart" textColor="#000000" backgroundColor="#DADADA" onClick={() => resetApp()} />
               </div>
             ) : (
               <div className="content-container">
