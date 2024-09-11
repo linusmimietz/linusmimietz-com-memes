@@ -25,6 +25,7 @@ For more details on each project, please refer to their respective README files:
 - colorthief
 - react-lottie-player
 - react-player
+- DigitalOcean Spaces object storage
 
 ### Memes Flask Backend
 
