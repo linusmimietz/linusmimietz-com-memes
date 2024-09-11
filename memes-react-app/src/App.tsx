@@ -51,7 +51,7 @@ function App() {
             };
           });
         mergedMemes.push(...Array.from(fetchedMemesMap.values()));
-        // we initiate index here because now the memes are loaded from local storage
+        // we more accurately initiate the index here because now the memes are loaded
         const cachedIndex = localStorage.getItem("currentMemeIndex");
         let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
         if (index < mergedMemes.length) {
