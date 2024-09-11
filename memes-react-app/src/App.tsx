@@ -39,21 +39,18 @@ function App() {
         const cachedMemesData = JSON.parse(cachedMemes);
         const fetchedMemes = await getMemes();
         const fetchedMemesMap = new Map(fetchedMemes.map((meme) => [meme.id, meme]));
-        const mergedMemes = [
-          ...cachedMemesData.map((cachedMeme: Meme) => {
+        const mergedMemes = cachedMemesData
+          .filter((cachedMeme: Meme) => fetchedMemesMap.has(cachedMeme.id))
+          .map((cachedMeme: Meme) => {
             const fetchedMeme = fetchedMemesMap.get(cachedMeme.id);
-            if (fetchedMeme) {
-              fetchedMemesMap.delete(cachedMeme.id);
-              return {
-                ...fetchedMeme,
-                selfliked: cachedMeme.selfliked,
-                myLikes: cachedMeme.myLikes,
-              };
-            }
-            return cachedMeme;
-          }),
-          ...Array.from(fetchedMemesMap.values()),
-        ];
+            fetchedMemesMap.delete(cachedMeme.id);
+            return {
+              ...fetchedMeme,
+              selfliked: cachedMeme.selfliked,
+              myLikes: cachedMeme.myLikes,
+            };
+          });
+        mergedMemes.push(...Array.from(fetchedMemesMap.values()));
         // we initiate index here because now the memes are loaded from local storage
         const cachedIndex = localStorage.getItem("currentMemeIndex");
         let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
