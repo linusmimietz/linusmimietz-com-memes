@@ -1,6 +1,6 @@
 # Memes React App
 
-This project is a React-based web application for viewing and liking memes. It uses MySQL for the database, a Flask backend hosted on Railway, and DigitalOcean Spaces for hosting meme images and videos.
+This project is a React-based web application for viewing and liking memes.
 
 ## Features
 
@@ -12,36 +12,22 @@ This project is a React-based web application for viewing and liking memes. It u
 - Keyboard navigation
 - Progress tracking
 - End summary screen
-- Caching state locally for 7 days
+- Caching state locally and merging with server data on load
 
 ## Technologies Used
 
 - React
 - TypeScript
 - Ant Design
-- MySQL
-- Flask
-- Railway
-- DigitalOcean Spaces
 
-## MySQL Database & Flask Backend
+## Database & Backend
 
-For this project, MySQL is used to store and retrieve like counts for memes. The application interacts with the MySQL database through a Flask backend hosted on Railway. The backend provides two main endpoints:
+The backend provides two main endpoints:
 
-1. Get All: Retrieves all documents from the "likes" table.
-2. Increment One: Increments the like count for a specific meme.
+1. `/get_all`: Retrieves all documents from the "likes" table.
+2. `/increment_one`: Increments the like count for a specific meme.
 
-The Flask backend code can be found in the `memes-flask-backend` folder.
-
-Structure of database:
-
-The MySQL database for this project has a simple structure:
-
-- Table: `likes`
-  - `_id` (VARCHAR(32), PRIMARY KEY): The unique identifier of the meme
-  - `likes` (INT): The number of likes for the meme
-
-Each row in the "likes" table represents a meme and its associated like count. The "\_id" field corresponds to the ETag from the DigitalOcean Spaces list XML (Simple Storage List), which uniquely identifies each meme object in the storage. The "likes" field stores the number of likes for that meme.
+The backend code can be found in the `memes-flask-backend` folder.
 
 ## Key Components
 
@@ -67,7 +53,7 @@ Each row in the "likes" table represents a meme and its associated like count. T
 
 2. Run the development server:
 
-   - Comment out the custom webpack config in `config-overrides.js` before running locally (block below: Merge the custom webpack config)
+   - Comment out the custom webpack config in `webpack.config.js` before running locally, otherwise the url will be rewritten to the DigitalOcean Space
 
    ```
    npm start
@@ -87,8 +73,8 @@ Each row in the "likes" table represents a meme and its associated like count. T
 
 5. Update Webflow integration:
 
-   - In your Webflow project, update the filenames of the JS and CSS files where the app is imported
-   - The new filenames can be found in the `build` folder after running `npm run build`
+   - On the webflow site, the app is integrated via a Code Embed
+   - Update the filenames of the JS and CSS everytime a new build is created
 
    ```html
    <div id="react-root-meme-app"></div>
@@ -98,7 +84,7 @@ Each row in the "likes" table represents a meme and its associated like count. T
 
 ## Configuration
 
-The project uses custom webpack configuration to ensure proper CSS scoping and output file naming. This is implemented in the `config-overrides.js` file.
+The project uses custom webpack configuration to ensure proper CSS scoping and output file naming. This is implemented in the `config-overrides.js` file. The custom webpack configuration in `webpack.config.js` rewrites the public path to the DigitalOcean Space URL. This is necessary for the production build to correctly reference the assets hosted on DigitalOcean Spaces.
 
 ## Note on File Hosting
 

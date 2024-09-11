@@ -31,7 +31,7 @@ This is a [Flask](https://flask.palletsprojects.com/) backend server that handle
 
 ## 🚀 Deployment
 
-This backend server can be easily deployed on [Railway](https://railway.app/) using the provided `railway.json` configuration file. Simply click the "Deploy on Railway" button in this README to set up a new project with this template.
+This backend server can be easily deployed on [Railway](https://railway.app/) using the provided `railway.json` configuration file.
 
 ## 📡 API Endpoints
 
