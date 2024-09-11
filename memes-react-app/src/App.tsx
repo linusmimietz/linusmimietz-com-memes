@@ -33,43 +33,6 @@ function App() {
   const likeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const initializeMemes = async () => {
-      const cachedMemes = localStorage.getItem("cachedMemes");
-      if (cachedMemes) {
-        const cachedMemesData = JSON.parse(cachedMemes);
-        const fetchedMemes = await getMemes();
-        const fetchedMemesMap = new Map(fetchedMemes.map((meme) => [meme.id, meme]));
-        const mergedMemes = cachedMemesData
-          .filter((cachedMeme: Meme) => fetchedMemesMap.has(cachedMeme.id))
-          .map((cachedMeme: Meme) => {
-            const fetchedMeme = fetchedMemesMap.get(cachedMeme.id);
-            fetchedMemesMap.delete(cachedMeme.id);
-            return {
-              ...fetchedMeme,
-              selfliked: cachedMeme.selfliked,
-              myLikes: cachedMeme.myLikes,
-            };
-          });
-        mergedMemes.push(...Array.from(fetchedMemesMap.values()));
-        // we more accurately initiate the index here because now the memes are loaded
-        const cachedIndex = localStorage.getItem("currentMemeIndex");
-        let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
-        if (index < mergedMemes.length) {
-          for (let i = index; i >= 0; i--) {
-            if (!mergedMemes[i].isVideo) {
-              index = i;
-              break;
-            }
-          }
-        } else {
-          index = mergedMemes.length;
-        }
-        setCurrentMemeIndex(index);
-        setMemes(mergedMemes);
-      } else {
-        setMemes(await getMemes());
-      }
-    };
     initializeMemes();
   }, []);
 
@@ -112,7 +75,7 @@ function App() {
           triggerLikeButtonClick();
         }
       } else if ((event.key === "r" || event.key === "R") && currentMemeIndex === memes.length) {
-        resetApp();
+        restartApp();
       }
     };
 
@@ -124,11 +87,50 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMemeIndex, memes]);
 
-  function resetApp() {
+  const initializeMemes = async () => {
+    const cachedMemes = localStorage.getItem("cachedMemes");
+    if (cachedMemes) {
+      const cachedMemesData = JSON.parse(cachedMemes);
+      const fetchedMemes = await getMemes();
+      const fetchedMemesMap = new Map(fetchedMemes.map((meme) => [meme.id, meme]));
+      const mergedMemes = cachedMemesData
+        .filter((cachedMeme: Meme) => fetchedMemesMap.has(cachedMeme.id))
+        .map((cachedMeme: Meme) => {
+          const fetchedMeme = fetchedMemesMap.get(cachedMeme.id);
+          fetchedMemesMap.delete(cachedMeme.id);
+          return {
+            ...fetchedMeme,
+            selfliked: cachedMeme.selfliked,
+            myLikes: cachedMeme.myLikes,
+          };
+        });
+      mergedMemes.push(...Array.from(fetchedMemesMap.values()));
+      // we more accurately initiate the index here because now the memes are loaded
+      const cachedIndex = localStorage.getItem("currentMemeIndex");
+      let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
+      if (index < mergedMemes.length) {
+        for (let i = index; i >= 0; i--) {
+          if (!mergedMemes[i].isVideo) {
+            index = i;
+            break;
+          }
+        }
+      } else {
+        index = mergedMemes.length;
+      }
+      setCurrentMemeIndex(index);
+      setMemes(mergedMemes);
+    } else {
+      setMemes(await getMemes());
+    }
+  };
+
+  function restartApp() {
     localStorage.removeItem("cachedMemes");
     localStorage.removeItem("currentMemeIndex");
     setMemes([]);
     setCurrentMemeIndex(0);
+    initializeMemes();
   }
 
   function imageOnLoad(event: any) {
@@ -197,7 +199,7 @@ function App() {
                     In total you viewed {memes.length} memes and awarded {myTotalLikes} like{myTotalLikes === 1 ? "" : "s"}.
                   </p>
                 </div>
-                <ButtonComponent text="Restart" textColor="#000000" backgroundColor="#DADADA" onClick={() => resetApp()} />
+                <ButtonComponent text="Restart" textColor="#000000" backgroundColor="#DADADA" onClick={() => restartApp()} />
               </div>
             ) : (
               <div className="content-container">
