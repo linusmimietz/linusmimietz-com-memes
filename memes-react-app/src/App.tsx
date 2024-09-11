@@ -18,7 +18,10 @@ import "./animation.css";
 import "./assets/fonts/fontfaces.css";
 
 function App() {
-  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  const [currentMemeIndex, setCurrentMemeIndex] = useState<number>(() => {
+    const cachedIndex = localStorage.getItem("currentMemeIndex");
+    return cachedIndex ? parseInt(cachedIndex, 10) : 0;
+  });
   const [memes, setMemes] = useState<Meme[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
@@ -35,17 +38,22 @@ function App() {
       if (cachedMemes) {
         const cachedMemesData = JSON.parse(cachedMemes);
         const fetchedMemes = await getMemes();
-        const mergedMemes = fetchedMemes.map((fetchedMeme) => {
-          const cachedMeme = cachedMemesData.find((meme: Meme) => meme.id === fetchedMeme.id);
-          if (cachedMeme) {
-            return {
-              ...fetchedMeme,
-              selfliked: cachedMeme.selfliked,
-              myLikes: cachedMeme.myLikes,
-            };
-          }
-          return fetchedMeme;
-        });
+        const fetchedMemesMap = new Map(fetchedMemes.map((meme) => [meme.id, meme]));
+        const mergedMemes = [
+          ...cachedMemesData.map((cachedMeme: Meme) => {
+            const fetchedMeme = fetchedMemesMap.get(cachedMeme.id);
+            if (fetchedMeme) {
+              fetchedMemesMap.delete(cachedMeme.id);
+              return {
+                ...fetchedMeme,
+                selfliked: cachedMeme.selfliked,
+                myLikes: cachedMeme.myLikes,
+              };
+            }
+            return cachedMeme;
+          }),
+          ...Array.from(fetchedMemesMap.values()),
+        ];
         // we initiate index here because now the memes are loaded from local storage
         const cachedIndex = localStorage.getItem("currentMemeIndex");
         let index = cachedIndex ? parseInt(cachedIndex, 10) : 0;
