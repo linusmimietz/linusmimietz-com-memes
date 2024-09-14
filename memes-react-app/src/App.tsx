@@ -154,7 +154,7 @@ function App() {
   }
 
   const handleLikeClick = () => {
-    if (memes[currentMemeIndex].myLikes >= 50) {
+    if (memes[currentMemeIndex].myLikes >= 10) {
       if (!alertTimeoutId) {
         setShowMaxLikesAlert(true);
         const timeoutId = setTimeout(() => {
@@ -256,7 +256,7 @@ function App() {
                       backgroundColor={memes[currentMemeIndex].selfliked ? "#FF4D4F" : "#FFD9E2"}
                       minWidth="126px"
                       onClick={handleLikeClick}
-                      disabled={memes[currentMemeIndex].myLikes >= 50}
+                      disabled={memes[currentMemeIndex].myLikes >= 10}
                       autoDisableOnclick={false}
                       lottieAnimation={ConfettiAnimation}
                     />
@@ -264,7 +264,7 @@ function App() {
                   </div>
                   {showMaxLikesAlert && (
                     <Alert
-                      message="You've reached the limit of 50 likes"
+                      message="You've reached the limit of 10 likes"
                       type="error"
                       showIcon
                       style={{

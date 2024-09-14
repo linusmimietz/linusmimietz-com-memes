@@ -29,7 +29,7 @@ export class Meme {
 
 export const likeMeme = async (memes: Meme[], index: number): Promise<void> => {
   if (index < 0 || index >= memes.length) return;
-  if (memes[index].myLikes >= 50) return;
+  if (memes[index].myLikes >= 10) return;
   const meme = memes[index];
   try {
     const response = await fetch("https://flask-backend-production-8bf1.up.railway.app/increment_one", {
