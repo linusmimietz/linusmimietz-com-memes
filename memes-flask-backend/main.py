@@ -1,67 +1,47 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS # type: ignore
+from flask_cors import CORS  # type: ignore
 import os
-import mysql.connector
-from mysql.connector import Error
+import psycopg
+from psycopg_pool import ConnectionPool
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes and origins
+CORS(app)
 
-# MySQL connection configuration
-db_config = {
-    'host': os.getenv('MYSQLHOST'),
-    'user': os.getenv('MYSQLUSER'),
-    'password': os.getenv('MYSQLPASSWORD'),
-    'database': os.getenv('MYSQL_DATABASE')
-}
+pool = ConnectionPool(
+    conninfo=os.environ["DATABASE_URL"],
+    min_size=1,
+    max_size=5,
+    kwargs={"autocommit": True},
+)
 
-def get_db_connection():
-    try:
-        connection = mysql.connector.connect(**db_config)
-        return connection
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        return None
 
 @app.route('/get_all', methods=['GET'])
 def get_all():
-    connection = get_db_connection()
-    if connection is None:
-        return jsonify({"error": "Database connection failed"}), 500
     try:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM likes")
-        results = cursor.fetchall()
+        with pool.connection() as conn, conn.cursor() as cur:
+            cur.execute("SELECT _id, likes FROM likes")
+            results = [{"_id": row[0], "likes": row[1]} for row in cur.fetchall()]
         return jsonify({"result": results})
-    except Error as e:
+    except psycopg.Error as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+
 
 @app.route('/increment_one', methods=['POST'])
 def increment_one():
     meme_id = request.data.decode('utf-8')
     if len(meme_id) != 32:
         return jsonify({"error": "Invalid meme ID"}), 400
-    connection = get_db_connection()
-    if connection is None:
-        return jsonify({"error": "Database connection failed"}), 500
     try:
-        cursor = connection.cursor()
-        cursor.execute(
-            "INSERT INTO likes (_id, likes) VALUES (%s, 1) ON DUPLICATE KEY UPDATE likes = likes + 1",
-            (meme_id,)
-        )
-        connection.commit()
+        with pool.connection() as conn, conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO likes (_id, likes) VALUES (%s, 1) "
+                "ON CONFLICT (_id) DO UPDATE SET likes = likes.likes + 1",
+                (meme_id,),
+            )
         return jsonify({"result": "success"})
-    except Error as e:
+    except psycopg.Error as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))

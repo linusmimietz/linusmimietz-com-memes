@@ -6,7 +6,7 @@ This repository contains two projects: a React-based web application for viewing
 
 1. **Memes React App**: A React-based web application for viewing and liking memes. It features a responsive design, animated like button, keyboard navigation, progress tracking, and more.
 
-2. **Memes Flask Backend**: A Flask backend server that handles like counts for the memes. It interacts with a MySQL database to store and retrieve like counts for each meme.
+2. **Memes Flask Backend**: A Flask backend server that handles like counts for the memes. It interacts with a PostgreSQL database (with connection pooling) to store and retrieve like counts for each meme.
 
 For more details on each project, please refer to their respective README files:
 
@@ -31,7 +31,7 @@ For more details on each project, please refer to their respective README files:
 
 - Python
 - Flask
-- MySQL
+- PostgreSQL
 - CORS support
 - Railway deployment
 
